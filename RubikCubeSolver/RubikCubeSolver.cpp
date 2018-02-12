@@ -31,6 +31,9 @@ const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
 							  { 2,5,8,6,3,0,2,5,8,2,5,8 },
 							  { 0,1,2,6,3,0,8,7,6,2,5,8 },
 							  { 6,7,8,6,7,8,6,7,8,6,7,8 } };
+const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
+							 { 8,7,6,5,4,3,2,1,0 },
+							 { 6,3,0,7,4,1,8,5,2 } };
 
 std::string moves[] = { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'" };
 std::string face;
@@ -91,40 +94,36 @@ bool in(int values[], int find) {
 }
 
 //Movement
-void front_face(int face) {
+void front_face(int face,int direction) {
 	int temp[9];
 	for (int i = 0; i < 9; i++) {
 		temp[i] = cube[face][i];
 	}
 	for (int i = 0; i < 9; i++) {
-		// set from temp using sequence 6,3,0,7,4,1,8,5,2 condenced
-		cube[face][i] = temp[6 - ((i % 3) * 3) + i / 3];
+		cube[face][i] = temp[frontFace[direction-1][i]];
 	}
 }
-void move(int face) {
-	front_face(face);
+void move(int face,int direction) {
+	front_face(face,direction/3);
 	int temp[12];
 
 	for (int i = 0; i < 12; i++) {
 		temp[i] = cube[cubeFace[face][i / 3]][cubeEdges[face][i]];
 	}
 	for (int i = 0; i < 12; i++) {
-		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + 9) % 12];
+		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 }
 void text_to_move(std::string c) {
 	int found = find(moves, 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
-			move(found);
+			move(found,9);
 		else if (c.length() == 2 && c[1] == '2') {
-			move(found);
-			move(found);
+			move(found,6);
 		}
 		else if (c.length() == 2 && c[1] == '\'') {
-			move(found);
-			move(found);
-			move(found);
+			move(found,3);
 		}
 	}
 }
@@ -172,7 +171,7 @@ bool stages(int stage) {
 	}
 }
 //add history function 
-bool backtrack(int depth, int stage, int history) {
+bool backtrack(int depth, int stage, int* history) {
 	depth++;
 
 	int temp;
@@ -185,9 +184,8 @@ bool backtrack(int depth, int stage, int history) {
 		return true;
 	}
 	for (int i = 0; i < sizeof(moves) / sizeof(std::string); i++) {
-
 		text_to_move(moves[i]);
-		if (backtrack(depth, stage)) {
+		if (backtrack(depth, stage, history)) {
 			return true;
 		}
 		text_to_move(moves[(i + 6) % 12]);
@@ -204,13 +202,13 @@ int main() {
 	srand(1);
 	print_cube();
 
-	/*while (true)
+	while (true)
 	{
 		std::cin >> face;
 		text_to_move(face);
 		std::cout << stages(0) << std::endl;
 		print_cube();
-	}*/
+	}
 
 	scramble(40);
 	print_cube();
@@ -219,7 +217,7 @@ int main() {
 	{
 		do {
 			std::cout << "Depth Limit: " << ++depthLimit << std::endl;
-		} while (!backtrack(0, stage,history));
+		} while (!backtrack(0, stage, history));
 
 		depthLimit--;
 		std::cout << "Stage: " << ++stage << std::endl;
