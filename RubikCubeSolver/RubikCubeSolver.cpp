@@ -6,6 +6,7 @@
 #include <time.h>
 #include <iterator>
 #include <algorithm>
+#include <fstream>
 
 int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 10,11,12,13,14,15,16,17,18 },
@@ -38,7 +39,7 @@ const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 std::string moves[][12] = { {"u","l","f","r","b","d","u'","l'","f'","r'","b'","d'"},
 							{ "u2","l","f","r","b","d2","l'","f'","r'","b'"} };
 std::string face;
-int depthLimit = 8;
+int depthLimit = 6;
 
 int g0[][4] = { { 2,8,47,53 },{ 4,6,49,51 } };
 int g1[][4] = { { 1,9,46,54 },{ 3,7,48,52 } };
@@ -94,6 +95,17 @@ bool in(int values[], int find) {
 	return false;
 }
 
+void to_file(std::string history[]) {
+	std::ofstream myfile;
+	myfile.open("example.txt", std::ios_base::app);
+	for (int i = 0; i < 20; i++)
+	{
+		if (history[i]!="-1")
+			myfile << history[i]<< ",";
+	}
+	myfile << std::endl;
+	myfile.close();
+}
 //Movement
 void front_face(int face,int direction) {
 	int temp[9];
@@ -172,7 +184,7 @@ bool stages(int stage) {
 	}
 }
 //add history function 
-bool backtrack(int depth, int stage, int* history) {
+bool backtrack(int depth, int stage, std::string history[]) {
 	depth++;
 
 	int temp;
@@ -185,11 +197,14 @@ bool backtrack(int depth, int stage, int* history) {
 		return true;
 	}
 	for (int i = 0; i < sizeof(moves) / sizeof(std::string); i++) {
+		history[depth] = moves[stage][i];
+		to_file(history);
 		text_to_move(moves[stage][i],stage);
 		if (backtrack(depth, stage, history)) {
 			return true;
 		}
 		text_to_move(moves[stage][(i + 6) % 12],stage);
+		history[depth] = "-1";
 	}
 	depth--;
 	return false;
@@ -198,18 +213,18 @@ bool backtrack(int depth, int stage, int* history) {
 
 int main() {
 	int stage = 0;
-	int stageLength = 2;
-	int history[20];
+	int stageLength = 1;
+	std::string history[20] = { "-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1" };
 	srand(1);
 	print_cube();
 
-	while (true)
+	/*while (true)
 	{
 		std::cin >> face;
 		text_to_move(face,stage);
 		std::cout << stages(0) << std::endl;
 		print_cube();
-	}
+	}*/
 
 	scramble(40);
 	print_cube();
