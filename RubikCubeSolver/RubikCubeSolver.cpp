@@ -35,7 +35,8 @@ const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 							 { 8,7,6,5,4,3,2,1,0 },
 							 { 6,3,0,7,4,1,8,5,2 } };
 
-std::string moves[] = { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'" };
+std::string moves[][12] = { {"u","l","f","r","b","d","u'","l'","f'","r'","b'","d'"},
+							{ "u2","l","f","r","b","d2","l'","f'","r'","b'"} };
 std::string face;
 int depthLimit = 8;
 
@@ -114,8 +115,8 @@ void move(int face,int direction) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 }
-void text_to_move(std::string c) {
-	int found = find(moves, 6, c[0]);
+void text_to_move(std::string c,int stage) {
+	int found = find(moves[stage], 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
 			move(found,9);
@@ -131,7 +132,7 @@ void scramble(int amount) {
 	int turnFace;
 	for (int i = 0; i < amount; i++) {
 		turnFace = rand() % sizeof(moves) / sizeof(std::string);
-		text_to_move(moves[turnFace]);
+		text_to_move(moves[0][turnFace],0);
 	}
 }
 
@@ -184,11 +185,11 @@ bool backtrack(int depth, int stage, int* history) {
 		return true;
 	}
 	for (int i = 0; i < sizeof(moves) / sizeof(std::string); i++) {
-		text_to_move(moves[i]);
+		text_to_move(moves[stage][i],stage);
 		if (backtrack(depth, stage, history)) {
 			return true;
 		}
-		text_to_move(moves[(i + 6) % 12]);
+		text_to_move(moves[stage][(i + 6) % 12],stage);
 	}
 	depth--;
 	return false;
@@ -205,7 +206,7 @@ int main() {
 	while (true)
 	{
 		std::cin >> face;
-		text_to_move(face);
+		text_to_move(face,stage);
 		std::cout << stages(0) << std::endl;
 		print_cube();
 	}
