@@ -21,25 +21,25 @@ int solvedCube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 37,38,39,40,41,42,43,44,45 },
 { 46,47,48,49,50,51,52,53,54 } };
 const int cubeFace[][4] = { { 1,4,3,2 },
-							{ 0,2,5,4 },
-							{ 0,3,5,1 },
-							{ 0,4,5,2 },
-							{ 0,1,5,3 },
-							{ 1,2,3,4 } };
+{ 0,2,5,4 },
+{ 0,3,5,1 },
+{ 0,4,5,2 },
+{ 0,1,5,3 },
+{ 1,2,3,4 } };
 const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
-							  { 0,3,6,0,3,6,0,3,6,8,5,2 },
-							  { 6,7,8,0,3,6,2,1,0,8,5,2 },
-							  { 2,5,8,6,3,0,2,5,8,2,5,8 },
-							  { 0,1,2,6,3,0,8,7,6,2,5,8 },
-							  { 6,7,8,6,7,8,6,7,8,6,7,8 } };
+{ 0,3,6,0,3,6,0,3,6,8,5,2 },
+{ 6,7,8,0,3,6,2,1,0,8,5,2 },
+{ 2,5,8,6,3,0,2,5,8,2,5,8 },
+{ 0,1,2,6,3,0,8,7,6,2,5,8 },
+{ 6,7,8,6,7,8,6,7,8,6,7,8 } };
 const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
-							 { 8,7,6,5,4,3,2,1,0 },
-							 { 6,3,0,7,4,1,8,5,2 } };
+{ 8,7,6,5,4,3,2,1,0 },
+{ 6,3,0,7,4,1,8,5,2 } };
 
-std::string moves[][12] = { {"u","l","f","r","b","d","u'","l'","f'","r'","b'","d'"},
-							{ "u2","l","f","r","b","d2","l'","f'","r'","b'"} };
+std::string moves[][12] = { { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'" },
+{ "u2","l","f","r","b","d2","l'","f'","r'","b'" } };
 std::string face;
-int depthLimit = 6;
+int depthLimit = 8;
 
 int g0[][4] = { { 2,8,47,53 },{ 4,6,49,51 } };
 int g1[][4] = { { 1,9,46,54 },{ 3,7,48,52 } };
@@ -100,24 +100,24 @@ void to_file(std::string history[]) {
 	myfile.open("example.txt", std::ios_base::app);
 	for (int i = 0; i < 20; i++)
 	{
-		if (history[i]!="-1")
-			myfile << history[i]<< ",";
+		if (history[i] != "-1")
+			myfile << history[i] << ",";
 	}
 	myfile << std::endl;
 	myfile.close();
 }
 //Movement
-void front_face(int face,int direction) {
+void front_face(int face, int direction) {
 	int temp[9];
 	for (int i = 0; i < 9; i++) {
 		temp[i] = cube[face][i];
 	}
 	for (int i = 0; i < 9; i++) {
-		cube[face][i] = temp[frontFace[direction-1][i]];
+		cube[face][i] = temp[frontFace[direction - 1][i]];
 	}
 }
-void move(int face,int direction) {
-	front_face(face,direction/3);
+void move(int face, int direction) {
+	front_face(face, direction / 3);
 	int temp[12];
 
 	for (int i = 0; i < 12; i++) {
@@ -127,16 +127,16 @@ void move(int face,int direction) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 }
-void text_to_move(std::string c,int stage) {
+void text_to_move(std::string c, int stage) {
 	int found = find(moves[stage], 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
-			move(found,9);
+			move(found, 9);
 		else if (c.length() == 2 && c[1] == '2') {
-			move(found,6);
+			move(found, 6);
 		}
 		else if (c.length() == 2 && c[1] == '\'') {
-			move(found,3);
+			move(found, 3);
 		}
 	}
 }
@@ -144,7 +144,7 @@ void scramble(int amount) {
 	int turnFace;
 	for (int i = 0; i < amount; i++) {
 		turnFace = rand() % sizeof(moves) / sizeof(std::string);
-		text_to_move(moves[0][turnFace],0);
+		text_to_move(moves[0][turnFace], 0);
 	}
 }
 
@@ -197,13 +197,22 @@ bool backtrack(int depth, int stage, std::string history[]) {
 		return true;
 	}
 	for (int i = 0; i < sizeof(moves) / sizeof(std::string); i++) {
+		if (depth > 2) {
+			if (history[depth - 3] == history[depth - 3] &&
+				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[stage][i]) {
+				return false;
+			}
+			else if (history[depth - 1] == moves[stage][(i + 6) % 12]) {
+				continue;
+			}
+		}
 		history[depth] = moves[stage][i];
-		to_file(history);
-		text_to_move(moves[stage][i],stage);
+		//to_file(history);
+		text_to_move(moves[stage][i], stage);
 		if (backtrack(depth, stage, history)) {
 			return true;
 		}
-		text_to_move(moves[stage][(i + 6) % 12],stage);
+		text_to_move(moves[stage][(i + 6) % 12], stage);
 		history[depth] = "-1";
 	}
 	depth--;
@@ -220,10 +229,10 @@ int main() {
 
 	/*while (true)
 	{
-		std::cin >> face;
-		text_to_move(face,stage);
-		std::cout << stages(0) << std::endl;
-		print_cube();
+	std::cin >> face;
+	text_to_move(face,stage);
+	std::cout << stages(0) << std::endl;
+	print_cube();
 	}*/
 
 	scramble(40);
@@ -242,4 +251,3 @@ int main() {
 	std::cout << "Finished" << std::endl;
 	std::cin.get();
 }
-
