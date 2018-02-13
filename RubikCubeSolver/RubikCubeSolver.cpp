@@ -35,9 +35,9 @@ const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
 const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 { 8,7,6,5,4,3,2,1,0 },
 { 6,3,0,7,4,1,8,5,2 } };
+int moveSet = 0;
 
-std::string moves[][12] = { { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'" },
-{ "u2","l","f","r","b","d2","l'","f'","r'","b'" } };
+std::string moves[][14] = { { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'","u2","d2" } };
 std::string face;
 int depthLimit = 8;
 
@@ -94,7 +94,6 @@ bool in(int values[], int find) {
 			return true;
 	return false;
 }
-
 void to_file(std::string history[]) {
 	std::ofstream myfile;
 	myfile.open("example.txt", std::ios_base::app);
@@ -128,7 +127,7 @@ void move(int face, int direction) {
 	}
 }
 void text_to_move(std::string c, int stage) {
-	int found = find(moves[stage], 6, c[0]);
+	int found = find(moves[moveSet], 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
 			move(found, 9);
@@ -147,14 +146,6 @@ void scramble(int amount) {
 		text_to_move(moves[0][turnFace], 0);
 	}
 }
-
-//int countEdge() {
-//	for (int i = 0; i < 8; i++)
-//	{
-//		// count good edges
-//	}
-//}
-//Cube Checking
 
 bool checkEdges() {
 	return (in(g0[0], cube[0][1]) && in(g0[0], cube[0][7]) && in(g0[0], cube[5][1]) && in(g0[0], cube[5][7]) &&
@@ -180,7 +171,7 @@ bool stages(int stage) {
 
 		return checkEdges();
 	case 1:
-		return (checkEdges() && checkCorners());
+		return checkCorners();
 	}
 }
 //add history function 
@@ -199,20 +190,20 @@ bool backtrack(int depth, int stage, std::string history[]) {
 	for (int i = 0; i < sizeof(moves) / sizeof(std::string); i++) {
 		if (depth > 2) {
 			if (history[depth - 3] == history[depth - 3] &&
-				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[stage][i]) {
+				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[moveSet][i]) {
 				return false;
 			}
-			else if (history[depth - 1] == moves[stage][(i + 6) % 12]) {
+			else if (history[depth - 1] == moves[moveSet][(i + 6) % 12]) {
 				continue;
 			}
 		}
-		history[depth] = moves[stage][i];
+		history[depth] = moves[moveSet][i];
 		//to_file(history);
-		text_to_move(moves[stage][i], stage);
+		text_to_move(moves[moveSet][i], stage);
 		if (backtrack(depth, stage, history)) {
 			return true;
 		}
-		text_to_move(moves[stage][(i + 6) % 12], stage);
+		text_to_move(moves[moveSet][(i + 6) % 12], stage);
 		history[depth] = "-1";
 	}
 	depth--;
@@ -222,7 +213,7 @@ bool backtrack(int depth, int stage, std::string history[]) {
 
 int main() {
 	int stage = 0;
-	int stageLength = 1;
+	int stageLength = 2;
 	std::string history[20] = { "-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1" };
 	srand(1);
 	print_cube();
