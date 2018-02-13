@@ -43,8 +43,8 @@ void move(int cube[][9], int face, int direction) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 }
-void text_to_move(int cube[][9], std::string c, int stage, int moveSet) {
-	int found = find(moves[moveSet], 6, c[0]);
+void text_to_move(int cube[][9], std::string c, int stage) {
+	int found = find(moves[stage], 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
 			move(cube, found, 9);
@@ -60,10 +60,10 @@ void scramble(int cube[][9], int amount) {
 	int turnFace;
 	for (int i = 0; i < amount; i++) {
 		turnFace = rand() % sizeof(moves) / sizeof(std::string);
-		text_to_move(cube, moves[0][turnFace], 0,0);
+		text_to_move(cube, moves[0][turnFace], 0);
 	}
 }
-bool backtrack(int cube[][9], int depth, int stage, std::string history[],int depthLimit,int moveSet) {
+bool backtrack(int cube[][9], int depth, int stage, std::string history[],int depthLimit) {
 	depth++;
 
 	int temp;
@@ -75,23 +75,23 @@ bool backtrack(int cube[][9], int depth, int stage, std::string history[],int de
 		std::cout << "found at depth: " << depth << std::endl;
 		return true;
 	}
-	for (int i = 0; i < sizeof(moves[moveSet]) / sizeof(std::string); i++) {
+	for (int i = 0; i < sizeof(moves[stage]) / sizeof(std::string); i++) {
 		if (depth > 2) {
 			if (history[depth - 3] == history[depth - 3] &&
-				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[moveSet][i]) {
+				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[stage][i]) {
 				return false;
 			}
 			/*else if (history[depth - 1] == moves[moveSet][(i + 6) % 12]) {
 			continue;
 			}*/
 		}
-		history[depth] = moves[moveSet][i];
+		history[depth] = moves[stage][i];
 		//to_file(history);
-		text_to_move(cube, moves[moveSet][i], stage, moveSet);
-		if (backtrack(cube,depth, stage, history,depthLimit,moveSet)) {
+		text_to_move(cube, moves[stage][i], stage);
+		if (backtrack(cube,depth, stage, history,depthLimit)) {
 			return true;
 		}
-		text_to_move(cube, moves[moveSet][(i + 6) % 12], stage, moveSet);
+		text_to_move(cube, moves[stage][(i + 6) % 12], stage);
 		history[depth] = "-1";
 	}
 	depth--;
