@@ -52,9 +52,17 @@ bool in(int values[], int find) {
 			return true;
 	return false;
 }
-void to_file(std::string history[]) {
+void to_file(int cube[][9],std::string history[]) {
 	std::ofstream myfile;
 	myfile.open("example.txt", std::ios_base::app);
+	for (int x = 0; x < 6; x++)
+	{
+		for (int y = 0; y < 9; y++)
+		{
+			myfile << cube[x][y] << ":";
+		}
+	}
+	myfile << ";";
 	for (int i = 0; i < 20; i++)
 	{
 		if (history[i] != "-1")
