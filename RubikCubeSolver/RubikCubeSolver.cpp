@@ -18,7 +18,7 @@ int main() {
 	int stage = 0;
 	int stageLength = 1;
 	std::string history[20] = { "-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1" };
-	srand(1);
+	srand(1); 
 	print_cube(cube);
 
 	/*while (true)

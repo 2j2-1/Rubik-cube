@@ -64,7 +64,7 @@ void scramble(int cube[][9], int amount) {
 	}
 }
 bool backtrack(int cube[][9], int depth, int stage, std::string history[],int depthLimit) {
-	depth++;
+	depth++; 
 
 	int temp;
 	if (depth > depthLimit) {

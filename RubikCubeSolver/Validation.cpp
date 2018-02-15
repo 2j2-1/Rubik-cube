@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Utils.h"
 
-int g0[][4] = { { 2,8,47,53 },{ 4,6,49,51 } };
+int g0[][4] = { { 2,8,47,53 },{ 4,6,49,51 } }; 
 int g1[][4] = { { 1,9,46,54 },{ 3,7,48,52 } };
 
 bool checkEdges(int cube[][9]) {
