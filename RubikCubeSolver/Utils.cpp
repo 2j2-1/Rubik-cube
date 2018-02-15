@@ -40,12 +40,6 @@ int find(std::string c[], int length, char find) {
 			return i;
 	return -1;
 }
-bool compare(int face[], int solved[]) {
-	for (int i = 0; i < sizeof(face) / sizeof(int); i++)
-		if (face[i] != solved[i])
-			return false;
-	return true;
-}
 bool in(int values[], int find) {
 	for (int i = 0; i < sizeof(values); i++)
 		if (values[i] == find)

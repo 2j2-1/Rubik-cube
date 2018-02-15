@@ -20,9 +20,8 @@ const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
 const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 { 8,7,6,5,4,3,2,1,0 },
 { 6,3,0,7,4,1,8,5,2 } };
-std::string moves[][14] = { { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'","u2","d2" },
-{ "l","f","r","b","l'","f'","r'","b'","u2","d2" } };
-
+std::string moves[14] = { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'" };
+std::string Tperm[15] = { "r","u","r'","u'","r'","f","r","r","u'","r'","u'","r","u","r'","f'"};
 void front_face(int cube[][9],int face, int direction) {
 	int temp[9];
 	for (int i = 0; i < 9; i++) {
@@ -43,8 +42,9 @@ void move(int cube[][9], int face, int direction) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 }
-void text_to_move(int cube[][9], std::string c, int stage) {
-	int found = find(moves[stage], 6, c[0]);
+
+void text_to_move(int cube[][9], std::string c) {
+	int found = find(moves, 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
 			move(cube, found, 9);
@@ -56,45 +56,94 @@ void text_to_move(int cube[][9], std::string c, int stage) {
 		}
 	}
 }
+void text_to_move(int cube[][9], char c) {
+	int found = find(moves, 6, c);
+	if (found != -1) {
+		move(cube, found, 9);
+	}
+}
 void scramble(int cube[][9], int amount) {
 	int turnFace;
 	for (int i = 0; i < amount; i++) {
 		turnFace = rand() % sizeof(moves) / sizeof(std::string);
-		text_to_move(cube, moves[0][turnFace], 0);
+		text_to_move(cube, moves[turnFace]);
 	}
 }
-bool backtrack(int cube[][9], int depth, int stage, std::string history[],int depthLimit) {
-	depth++;
+char * edgeSetUp[54] = { 
+"", 
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"", 
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"", 
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"", 
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"", 
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+"", 
+"",
+"",
+""};
+void swapEdges(int cube[][9], const char *c) {
+	string_to_move(cube, c);
+	for (int i = 0; i < 15; i++)
+	{
+		text_to_move(cube,Tperm[i]);
+	}
+	reverse_string_to_move(cube, c);
+}
 
-	int temp;
-	if (depth > depthLimit) {
-		depth--;
-		return false;
+void string_to_move(int cube[][9], const char* c) {
+	for (int i = 0; i < sizeof(c) / sizeof(const char); i++)
+	{
+		text_to_move(cube, c[i]);
 	}
-	if (stages(cube,stage)) {
-		std::cout << "found at depth: " << depth << std::endl;
-		return true;
+}
+void reverse_string_to_move(int cube[][9], const char* c) {
+	for (int i = 0; i < sizeof(c) / sizeof(const char); i++)
+	{
+		text_to_move(cube, c[i]);
+		text_to_move(cube, c[i]);
+		text_to_move(cube, c[i]);
 	}
-	for (int i = 0; i < sizeof(moves[stage]) / sizeof(std::string); i++) {
-		if (depth > 2) {
-			if (history[depth - 3] == history[depth - 3] &&
-				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[stage][i]) {
-				return false;
-			}
-			/*else if (history[depth - 1] == moves[moveSet][(i + 6) % 12]) {
-			continue;
-			}*/
-		}
-		history[depth] = moves[stage][i];
-		//to_file(history);
-		text_to_move(cube, moves[stage][i], stage);
-		if (backtrack(cube,depth, stage, history,depthLimit)) {
-			return true;
-		}
-		text_to_move(cube, moves[stage][(i + 6) % 12], stage);
-		history[depth] = "-1";
-	}
-	depth--;
-	return false;
-
 }
