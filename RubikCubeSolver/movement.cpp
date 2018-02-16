@@ -69,81 +69,102 @@ void scramble(int cube[][9], int amount) {
 		text_to_move(cube, moves[turnFace]);
 	}
 }
-char * edgeSetUp[54] = { 
-"", 
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"", 
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"", 
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"", 
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"", 
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"",
-"", 
-"",
-"",
-""};
-void swapEdges(int cube[][9], const char *c) {
+char * setUp[54] = { 
+	"",
+	"bbdll",
+	"",
+	"", //blank
+	"",
+	"", //blank
+	"",
+	"ffdddll",
+	"",
+	"",
+	"lfffdddll",
+	"",
+	"llfffdddll",
+	"",
+	"fffdddll",
+	"",
+	"lllfffdddll",
+	"",
+	"",
+	"ffflll",
+	"",
+	"lll",
+	"",
+	"fflll",
+	"",
+	"flll",
+	"",
+	"",
+	"", //blank
+	"",
+	"fdddll",
+	"",
+	"bbbdll",
+	"",
+	"dddflll",
+	"",
+	"",
+	"bl",
+	"",
+	"bbl",
+	"",
+	"l",
+	"",
+	"bbbl",
+	"",
+	"",
+	"dddll",
+	"",
+	"ll",
+	"",
+	"ddll",
+	"",
+	"dll",
+	"" };
+void swapEdges(int cube[][9]) {
+	char * c = setUp[cube[0][5] - 1];
 	string_to_move(cube, c);
 	for (int i = 0; i < 15; i++)
 	{
-		text_to_move(cube,Tperm[i]);
+		text_to_move(cube, Tperm[i]);
+	}
+	reverse_string_to_move(cube, c);
+}
+void swapEdges(int cube[][9],int set) {
+	char * c = setUp[set];
+	string_to_move(cube, c);
+	for (int i = 0; i < 15; i++)
+	{
+		text_to_move(cube, Tperm[i]);
 	}
 	reverse_string_to_move(cube, c);
 }
 
 void string_to_move(int cube[][9], const char* c) {
-	for (int i = 0; i < sizeof(c) / sizeof(const char); i++)
+	for (int i = 0; i < strlen(c); i++)
 	{
 		text_to_move(cube, c[i]);
 	}
 }
 void reverse_string_to_move(int cube[][9], const char* c) {
-	for (int i = 0; i < sizeof(c) / sizeof(const char); i++)
+	for (int i = strlen(c) -1; i >= 0; i--)
 	{
 		text_to_move(cube, c[i]);
 		text_to_move(cube, c[i]);
 		text_to_move(cube, c[i]);
+	}
+}
+
+void out_of_place(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
+	{
+		if (cube[i / 9][i % 9] != i+1 && (i%9)%2==1 && cube[i / 9][i % 9] != 29 && cube[i / 9][i % 9] != 4 && cube[i / 9][i % 9] != 6) {
+			std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
+			swapEdges(cube, i);
+			break;
+		}
 	}
 }
