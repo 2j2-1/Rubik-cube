@@ -7,10 +7,20 @@ int solvedCube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 28,29,30,31,32,33,34,35,36 },
 { 37,38,39,40,41,42,43,44,45 },
 { 46,47,48,49,50,51,52,53,54 } };
-bool solved(int cube[][9]) {
+
+bool solvedEdges(int cube[][9]) {
 	for (int i = 1; i < 54; i++)
 	{
 		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 1) {
+			return false;
+		}
+	}
+	return true;
+}
+bool solvedCorners(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
+	{
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 0) {
 			return false;
 		}
 	}

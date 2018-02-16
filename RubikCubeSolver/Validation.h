@@ -2,6 +2,6 @@
 #define VALIDATION_H
 
 
-bool solved(int cube[][9]);
-
+bool solvedEdges(int cube[][9]);
+bool solvedCorners(int cube[][9]);
 #endif

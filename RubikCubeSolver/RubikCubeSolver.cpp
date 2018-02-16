@@ -15,29 +15,54 @@ int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 
 int main() {
 	srand(time(NULL));
-	while (true)
+	do
 	{
-		scramble(cube, 40);
-		print_cube(cube);
 
-		do
-		{
+	
+	scramble(cube, 40);
+	//print_cube(cube);
+
+	do {
+		do {
+			if (cube[0][5] != 29) {
+				swapEdges(cube);
+			}
+			else {
+				out_of_place(cube);
+			}
+		} while (cube[0][5] != 6);
+		out_of_place(cube);
+	} while (!solvedEdges(cube));
+	//std::cout << "Finished edges\n";
+	
+	do {
+		do {
+			if (cube[0][0] == 10 && cube[0][8] == 21) {
+				print_cube(cube);
+				std::cout << "case 1\n";
+				std::cin.get();
+				string_to_move(cube, "");
+			}
+			else if ((cube[0][0] == 39 && cube[0][8] == 28)) {
+				print_cube(cube);
+				std::cout << "case 2\n";
+				std::cin.get();
+				string_to_move(cube, "");
+			}
+			else if (cube[0][0] != 10 && cube[0][0] != 39) {
+				swapCorners(cube);
+			}
+			else {
+				out_of_place_corners(cube);
+			}
 			
-			do
-			{
-				//print_cube(cube);
-				if (cube[0][5] != 29) {
-					swapEdges(cube);
-				}
-				else {
-					out_of_place(cube);
-				}
-			} while (cube[0][5] != 6);
-			out_of_place(cube);
-		} while (!solved(cube));
+		} while (cube[0][0] != 1);
+		out_of_place_corners(cube);
+	} while (!solvedCorners(cube));
 
-		print_cube(cube);
-		std::cout << "Finished" << std::endl;
-		//std::cin.get();
-	}
+	/*print_cube(cube);
+	std::cout << "Finished" << std::endl;*/
+	//std::cin.get();
+	} while (true);
+	
 }

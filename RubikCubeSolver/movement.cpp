@@ -22,6 +22,7 @@ const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 { 6,3,0,7,4,1,8,5,2 } };
 std::string moves[14] = { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'" };
 std::string Tperm[15] = { "r","u","r'","u'","r'","f","r","r","u'","r'","u'","r","u","r'","f'"};
+std::string Yperm[17] = {"f","r","u'","r'","u'","r","u","r'","f'","r","u","r'","u'","r'","f","r","f'"};
 void front_face(int cube[][9],int face, int direction) {
 	int temp[9];
 	for (int i = 0; i < 9; i++) {
@@ -42,7 +43,6 @@ void move(int cube[][9], int face, int direction) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 }
-
 void text_to_move(int cube[][9], std::string c) {
 	int found = find(moves, 6, c[0]);
 	if (found != -1) {
@@ -70,60 +70,61 @@ void scramble(int cube[][9], int amount) {
 	}
 }
 char * setUp[54] = { 
-	"",
+	"", // blank
 	"bbdll",
-	"",
+	"rrdrr",
 	"", //blank
 	"",
 	"", //blank
-	"",
+	"ffdrr",
 	"ffdddll",
-	"",
-	"",
-	"lfffdddll",
-	"",
-	"llfffdddll",
-	"",
-	"fffdddll",
-	"",
-	"lllfffdddll",
-	"",
-	"",
-	"ffflll",
-	"",
-	"lll",
-	"",
-	"fflll",
-	"",
-	"flll",
-	"",
-	"",
+	"", // blank
 	"", //blank
-	"",
+	"lfffdddll",
+	"f",
+	"llfffdddll",
+	"", // blank
+	"fffdddll",
+	"dfffr",
+	"lllfffdddll",
+	"fffdrr",
+	"ffr",
+	"ffflll",
+	"fr",
+	"lll",
+	"", // blank
+	"fflll",
+	"fffr",
+	"flll",
+	"r",
+	"ffdr",
+	"", //blank
+	"rdddr",
 	"fdddll",
-	"",
+	"", // blank
 	"bbbdll",
-	"",
+	"rrrdddr",
 	"dddflll",
-	"",
-	"",
+	"dddr",
+	"rrr",
 	"bl",
-	"",
+	"", // blank
 	"bbl",
-	"",
+	"", //blank
 	"l",
-	"",
+	"ddfffr",
 	"bbbl",
-	"",
-	"",
+	"dfffdrr",
+	"ddrr",
 	"dddll",
-	"",
+	"drr",
 	"ll",
 	"",
 	"ddll",
-	"",
+	"dddrr", //blank
 	"dll",
-	"" };
+	"rr" };
+
 void swapEdges(int cube[][9]) {
 	char * c = setUp[cube[0][5] - 1];
 	string_to_move(cube, c);
@@ -161,10 +162,39 @@ void reverse_string_to_move(int cube[][9], const char* c) {
 void out_of_place(int cube[][9]) {
 	for (int i = 1; i < 54; i++)
 	{
-		if (cube[i / 9][i % 9] != i+1 && (i%9)%2==1 && cube[i / 9][i % 9] != 29 && cube[i / 9][i % 9] != 4 && cube[i / 9][i % 9] != 6) {
-			std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 1 && cube[i / 9][i % 9] != 29 && cube[i / 9][i % 9] != 4 && cube[i / 9][i % 9] != 6) {
+			//std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
 			swapEdges(cube, i);
 			break;
 		}
 	}
+}
+void out_of_place_corners(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
+	{
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 0 && cube[i / 9][i % 9] != 1 && cube[i / 9][i % 9] != 9 && cube[i / 9][i % 9] != 10 && cube[i / 9][i % 9] != 28 && cube[i / 9][i % 9] != 21 && cube[i / 9][i % 9] != 39) {
+			//std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
+			swapCorners(cube, i);
+			break;
+		}
+	}
+}
+
+void swapCorners(int cube[][9]) {
+	char * c = setUp[cube[0][0] - 1];
+	string_to_move(cube, c);
+	for (int i = 0; i < 17; i++)
+	{
+		text_to_move(cube, Yperm[i]);
+	}
+	reverse_string_to_move(cube, c);
+}
+void swapCorners(int cube[][9],int set) {
+	char * c = setUp[set];
+	string_to_move(cube, c);
+	for (int i = 0; i < 17; i++)
+	{
+		text_to_move(cube, Yperm[i]);
+	}
+	reverse_string_to_move(cube, c);
 }
