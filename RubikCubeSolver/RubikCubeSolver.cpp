@@ -14,6 +14,7 @@ int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 46,47,48,49,50,51,52,53,54 } };
 
 int main() {
+	int count = 0;
 	srand(time(NULL));
 	do
 	{
@@ -34,20 +35,13 @@ int main() {
 		out_of_place(cube);
 	} while (!solvedEdges(cube));
 	//std::cout << "Finished edges\n";
-	
 	do {
 		do {
 			if (cube[0][0] == 10 && cube[0][8] == 21) {
-				print_cube(cube);
-				std::cout << "case 1\n";
-				std::cin.get();
-				string_to_move(cube, "");
+				string_to_move(cube,"urrrfrbbbrrrfffrburrrfrrrbbrfffrrrbbrruu");
 			}
 			else if ((cube[0][0] == 39 && cube[0][8] == 28)) {
-				print_cube(cube);
-				std::cout << "case 2\n";
-				std::cin.get();
-				string_to_move(cube, "");
+				string_to_move(cube, "uuurrrfrbbbrrrfffrburbbbrffrrrbrffrr");
 			}
 			else if (cube[0][0] != 10 && cube[0][0] != 39) {
 				swapCorners(cube);
@@ -60,9 +54,12 @@ int main() {
 		out_of_place_corners(cube);
 	} while (!solvedCorners(cube));
 
-	/*print_cube(cube);
-	std::cout << "Finished" << std::endl;*/
-	//std::cin.get();
+	//print_cube(cube);
+	//std::cout << "Finished" << std::endl;
+	count++;
+	if (count % 1000 == 0) {
+		std::cout << count << std::endl;
+	}
 	} while (true);
 	
 }
