@@ -77,6 +77,7 @@ void scramble(int cube[][9], int amount) {
 		text_to_move(cube, moves[turnFace]);
 	}
 }
+
 void swapEdges(int cube[][9]) {
 	char * c = setUp[cube[0][5] - 1];
 	string_to_move(cube, c);

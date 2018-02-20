@@ -12,6 +12,7 @@ int find(std::string c[], int length, char find) {
 			return i;
 	return -1;
 }
+
 bool in(int values[], int find) {
 	for (int i = 0; i < sizeof(values); i++)
 		if (values[i] == find)
