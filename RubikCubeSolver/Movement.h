@@ -15,5 +15,5 @@ void out_of_place(int cube[][9]);
 void swapCorners(int cube[][9]);
 void swapCorners(int cube[][9], int set);
 void out_of_place_corners(int cube[][9]);
-void solve(cGame game,int cube[][9]);
+void solve(int cube[][9]);
 #endif

@@ -23,10 +23,11 @@ const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
 const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 { 8,7,6,5,4,3,2,1,0 },
 { 6,3,0,7,4,1,8,5,2 } };
+char * setUp[54] = { "", "bbdll","rrdrr","", "","","ffdrr","ffdddll","","","lfffdddll","f","llfffdddll","","fffdddll","dfffr","lllfffdddll","fffdrr","ffr","ffflll","fr","lll","","fflll","fffr","flll","r","ffdr","","rdddr","fdddll","","bbbdll","rrrdddr","dddflll","dddr","rrr","bl","","bbl","","l","ddfffr","bbbl","dfffdrr","ddrr","dddll","drr","ll","","ddll","dddrr","dll","rr" };
 std::string moves[14] = { "u","l","f","r","b","d","U","L","F","R","B","D" };
 std::string Tperm[15] = { "r","u","r'","u'","r'","f","r","r","u'","r'","u'","r","u","r'","f'"};
 std::string Yperm[17] = {"f","r","u'","r'","u'","r","u","r'","f'","r","u","r'","u'","r'","f","r","f'"};
-int sleep = 25;
+int sleep = 10;
 
 void front_face(int cube[][9],int face, int direction) {
 	int temp[9];
@@ -76,8 +77,6 @@ void scramble(int cube[][9], int amount) {
 		text_to_move(cube, moves[turnFace]);
 	}
 }
-char * setUp[54] = { "", "bbdll","rrdrr","", "","","ffdrr","ffdddll","","","lfffdddll","f","llfffdddll","","fffdddll","dfffr","lllfffdddll","fffdrr","ffr","ffflll","fr","lll","","fflll","fffr","flll","r","ffdr","","rdddr","fdddll","","bbbdll","rrrdddr","dddflll","dddr","rrr","bl","","bbl","","l","ddfffr","bbbl","dfffdrr","ddrr","dddll","drr","ll","","ddll","dddrr","dll","rr" };
-
 void swapEdges(int cube[][9]) {
 	char * c = setUp[cube[0][5] - 1];
 	string_to_move(cube, c);
@@ -148,7 +147,7 @@ void swapCorners(int cube[][9],int set) {
 	}
 	reverse_string_to_move(cube, c);
 }
-void solve(cGame game, int cube[][9]) {
+void solve(int cube[][9]) {
 	do {
 		do {
 			if (cube[0][5] != 29) {

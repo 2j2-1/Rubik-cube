@@ -34,7 +34,7 @@ int main() {
 	srand(time(NULL));
 	scramble(cube, 40);
 	print_cube(cube);
-	solve(game,cube);
+	solve(cube);
 	print_cube(cube);
 	while (true){}
 }
