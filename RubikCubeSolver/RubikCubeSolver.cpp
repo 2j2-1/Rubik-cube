@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include <iostream>
-#include <string>
 #include <time.h>
 #include "Movement.h"
 #include "Utils.h"
 #include "Validation.h"
+#include "cGame.h"
 
 int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 10,11,12,13,14,15,16,17,18 },
@@ -12,32 +12,29 @@ int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 28,29,30,31,32,33,34,35,36 },
 { 37,38,39,40,41,42,43,44,45 },
 { 46,47,48,49,50,51,52,53,54 } };
-int depthLimit[] = {7,13,15,17};
+cGame game;
+int locations[][6] = { { 20,0 },{ 0,12 },{ 20,12 },{ 40,12 },{ 60,12 },{ 20,24 } };
+char symbols[] = { '=','+','*','/','(','&' };
+
+void print_cube(int cube[][9]) {
+	for (int i = 0; i < 54; i++)
+	{
+		for (int j = 0; j < 15; j++)
+		{
+			game.draw_pixel(((i % 3) * 6) + j % 5 + locations[i / 9][0], (((i % 9) / 3) * 4) + j / 5 + locations[i / 9][1], symbols[(cube[i / 9][i % 9] - 1) / 9]);
+		}
+	}
+	game.draw();
+}
 
 int main() {
-	int stage = 0;
-	int stageLength = 1;
-	std::string history[20] = { "-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1","-1" };
-	srand(1); 
+	
+	game.setup();
+	game.blank_screen();
+	srand(time(NULL));
+	scramble(cube, 40);
 	print_cube(cube);
-
-	/*while (true)
-	{
-	std::cin >> face;
-	text_to_move(face,stage);
-	std::cout << stages(0) << std::endl;
-	print_cube();
-	}*/
-
-	scramble(cube,6);
+	solve(cube);
 	print_cube(cube);
-	depthLimit[stage]++;
-	do
-	{
-		backtrack(cube,0, stage, history,depthLimit[stage]);
-		std::cout << "Stage: " << ++stage << std::endl;
-		print_cube(cube);
-	} while (stage < stageLength);
-	std::cout << "Finished" << std::endl;
-	std::cin.get();
+	while (true){}
 }

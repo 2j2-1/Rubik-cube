@@ -1,33 +1,30 @@
 #include "stdafx.h"
 #include "Utils.h"
 
-int g0[][4] = { { 2,8,47,53 },{ 4,6,49,51 } }; 
-int g1[][4] = { { 1,9,46,54 },{ 3,7,48,52 } };
 
-bool checkEdges(int cube[][9]) {
-	return (in(g0[0], cube[0][1]) && in(g0[0], cube[0][7]) && in(g0[0], cube[5][1]) && in(g0[0], cube[5][7]) &&
-		in(g0[1], cube[0][3]) && in(g0[1], cube[0][5]) && in(g0[1], cube[5][3]) && in(g0[1], cube[5][5]));
-}
-bool checkCorners(int cube[][9]) {
-	return (
-		in(g1[0], cube[0][0]) &&
-		in(g1[0], cube[0][8]) &&
-		in(g1[0], cube[5][0]) &&
-		in(g1[0], cube[5][8]) &&
+int solvedCube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+{ 10,11,12,13,14,15,16,17,18 },
+{ 19,20,21,22,23,24,25,26,27 },
+{ 28,29,30,31,32,33,34,35,36 },
+{ 37,38,39,40,41,42,43,44,45 },
+{ 46,47,48,49,50,51,52,53,54 } };
 
-		in(g1[1], cube[0][2]) &&
-		in(g1[1], cube[0][6]) &&
-		in(g1[1], cube[5][2]) &&
-		in(g1[1], cube[5][6])
-		);
-}
-bool stages(int cube[][9],int stage) {
-	switch (stage)
+
+bool solvedEdges(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
 	{
-	case 0:
-
-		return checkEdges(cube);
-	case 1:
-		return (checkCorners(cube) && checkEdges(cube));
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 1) {
+			return false;
+		}
 	}
+	return true;
+}
+bool solvedCorners(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
+	{
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 0) {
+			return false;
+		}
+	}
+	return true;
 }

@@ -3,49 +3,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-void print_cube(int cube[][9]) {
-	for (int j = 0; j < 3; j++) {
-		std::cout << "         ";
-		for (int i = 0; i < 3; i++) {
-			if (cube[0][j * 3 + i] < 10)
-				std::cout << " ";
-			std::cout << cube[0][j * 3 + i] << " ";
-		}
-		std::cout << std::endl;
-	}
+#include "cGame.h"
 
-	for (int j = 1; j < 4; j++) {
-		for (int i = 0; i < 12; i++) {
-			if (cube[(i / 3) + 1][(i % 3) + ((j - 1) * 3)] < 10)
-				std::cout << " ";
-			std::cout << cube[(i / 3) + 1][(i % 3) + ((j - 1) * 3)] << " ";
-		}
-		std::cout << std::endl;
-	}
 
-	for (int j = 0; j < 3; j++) {
-		std::cout << "         ";
-		for (int i = 0; i < 3; i++) {
-			if (cube[5][j * 3 + i] < 10)
-				std::cout << " ";
-			std::cout << cube[5][j * 3 + i] << " ";
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-}
 int find(std::string c[], int length, char find) {
 	for (int i = 0; i < length; i++)
 		if (find == c[i][0])
 			return i;
 	return -1;
 }
-bool compare(int face[], int solved[]) {
-	for (int i = 0; i < sizeof(face) / sizeof(int); i++)
-		if (face[i] != solved[i])
-			return false;
-	return true;
-} 
+
 bool in(int values[], int find) {
 	for (int i = 0; i < sizeof(values); i++)
 		if (values[i] == find)

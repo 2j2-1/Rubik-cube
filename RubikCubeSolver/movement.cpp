@@ -4,7 +4,10 @@
 #include "Validation.h"
 #include <string>
 #include <iostream>
-
+#include <stdio.h>
+#include <time.h>
+#include <dos.h>
+#include <windows.h>
 const int cubeFace[][4] = { { 1,4,3,2 },
 { 0,2,5,4 },
 { 0,3,5,1 },
@@ -20,8 +23,11 @@ const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
 const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 { 8,7,6,5,4,3,2,1,0 },
 { 6,3,0,7,4,1,8,5,2 } };
-std::string moves[][14] = { { "u","l","f","r","b","d","u'","l'","f'","r'","b'","d'","u2","d2" },
-{ "l","f","r","b","l'","f'","r'","b'","u2","d2" } };
+char * setUp[54] = { "", "bbdll","rrdrr","", "","","ffdrr","ffdddll","","","lfffdddll","f","llfffdddll","","fffdddll","dfffr","lllfffdddll","fffdrr","ffr","ffflll","fr","lll","","fflll","fffr","flll","r","ffdr","","rdddr","fdddll","","bbbdll","rrrdddr","dddflll","dddr","rrr","bl","","bbl","","l","ddfffr","bbbl","dfffdrr","ddrr","dddll","drr","ll","","ddll","dddrr","dll","rr" };
+std::string moves[14] = { "u","l","f","r","b","d","U","L","F","R","B","D" };
+std::string Tperm[15] = { "r","u","r'","u'","r'","f","r","r","u'","r'","u'","r","u","r'","f'"};
+std::string Yperm[17] = {"f","r","u'","r'","u'","r","u","r'","f'","r","u","r'","u'","r'","f","r","f'"};
+int sleep = 10;
 
 void front_face(int cube[][9],int face, int direction) {
 	int temp[9];
@@ -42,9 +48,11 @@ void move(int cube[][9], int face, int direction) {
 	for (int i = 0; i < 12; i++) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
+	print_cube(cube);
+	Sleep(sleep);
 }
-void text_to_move(int cube[][9], std::string c, int stage) {
-	int found = find(moves[stage], 6, c[0]);
+void text_to_move(int cube[][9], std::string c) {
+	int found = find(moves, 6, c[0]);
 	if (found != -1) {
 		if (c.length() == 1)
 			move(cube, found, 9);
@@ -56,45 +64,120 @@ void text_to_move(int cube[][9], std::string c, int stage) {
 		}
 	}
 }
+void text_to_move(int cube[][9], char c) {
+	int found = find(moves, 6, c);
+	if (found != -1) {
+		move(cube, found, 9);
+	}
+}
 void scramble(int cube[][9], int amount) {
 	int turnFace;
 	for (int i = 0; i < amount; i++) {
 		turnFace = rand() % sizeof(moves) / sizeof(std::string);
-		text_to_move(cube, moves[0][turnFace], 0);
+		text_to_move(cube, moves[turnFace]);
 	}
 }
-bool backtrack(int cube[][9], int depth, int stage, std::string history[],int depthLimit) {
-	depth++; 
 
-	int temp;
-	if (depth > depthLimit) {
-		depth--;
-		return false;
+void swapEdges(int cube[][9]) {
+	char * c = setUp[cube[0][5] - 1];
+	string_to_move(cube, c);
+	for (int i = 0; i < 15; i++)
+	{
+		text_to_move(cube, Tperm[i]);
 	}
-	if (stages(cube,stage)) {
-		std::cout << "found at depth: " << depth << std::endl;
-		return true;
+	reverse_string_to_move(cube, c);
+}
+void swapEdges(int cube[][9],int set) {
+	char * c = setUp[set];
+	string_to_move(cube, c);
+	for (int i = 0; i < 15; i++)
+	{
+		text_to_move(cube, Tperm[i]);
 	}
-	for (int i = 0; i < sizeof(moves[stage]) / sizeof(std::string); i++) {
-		if (depth > 2) {
-			if (history[depth - 3] == history[depth - 3] &&
-				history[depth - 3] == history[depth - 1] && history[depth - 3] == moves[stage][i]) {
-				return false;
+	reverse_string_to_move(cube, c);
+}
+void string_to_move(int cube[][9], const char* c) {
+	for (int i = 0; i < strlen(c); i++)
+	{
+		text_to_move(cube, c[i]);
+	}
+}
+void reverse_string_to_move(int cube[][9], const char* c) {
+	for (int i = strlen(c) -1; i >= 0; i--)
+	{
+		text_to_move(cube, c[i]);
+		text_to_move(cube, c[i]);
+		text_to_move(cube, c[i]);
+	}
+}
+void out_of_place(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
+	{
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 1 && cube[i / 9][i % 9] != 29 && cube[i / 9][i % 9] != 4 && cube[i / 9][i % 9] != 6) {
+			//std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
+			swapEdges(cube, i);
+			break;
+		}
+	}
+}
+void out_of_place_corners(int cube[][9]) {
+	for (int i = 1; i < 54; i++)
+	{
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 0 && cube[i / 9][i % 9] != 1 && cube[i / 9][i % 9] != 9 && cube[i / 9][i % 9] != 10 && cube[i / 9][i % 9] != 28 && cube[i / 9][i % 9] != 21 && cube[i / 9][i % 9] != 39) {
+			//std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
+			swapCorners(cube, i);
+			break;
+		}
+	}
+}
+void swapCorners(int cube[][9]) {
+	char * c = setUp[cube[0][0] - 1];
+	string_to_move(cube, c);
+	for (int i = 0; i < 17; i++)
+	{
+		text_to_move(cube, Yperm[i]);
+	}
+	reverse_string_to_move(cube, c);
+}
+void swapCorners(int cube[][9],int set) {
+	char * c = setUp[set];
+	string_to_move(cube, c);
+	for (int i = 0; i < 17; i++)
+	{
+		text_to_move(cube, Yperm[i]);
+	}
+	reverse_string_to_move(cube, c);
+}
+void solve(int cube[][9]) {
+	do {
+		do {
+			if (cube[0][5] != 29) {
+				swapEdges(cube);
 			}
-			/*else if (history[depth - 1] == moves[moveSet][(i + 6) % 12]) {
-			continue;
-			}*/
-		}
-		history[depth] = moves[stage][i];
-		//to_file(history);
-		text_to_move(cube, moves[stage][i], stage);
-		if (backtrack(cube,depth, stage, history,depthLimit)) {
-			return true;
-		}
-		text_to_move(cube, moves[stage][(i + 6) % 12], stage);
-		history[depth] = "-1";
-	}
-	depth--;
-	return false;
+			else {
+				out_of_place(cube);
+			}
+		} while (cube[0][5] != 6);
+		out_of_place(cube);
+		
+	} while (!solvedEdges(cube));
+	do {
+		do {
+			if (cube[0][0] == 10 && cube[0][8] == 21) {
+				string_to_move(cube, "urrrfrbbbrrrfffrburrrfrrrbbrfffrrrbbrruu");
+			}
+			else if ((cube[0][0] == 39 && cube[0][8] == 28)) {
+				string_to_move(cube, "uuurrrfrbbbrrrfffrburbbbrffrrrbrffrr");
+			}
+			else if (cube[0][0] != 10 && cube[0][0] != 39) {
+				swapCorners(cube);
+			}
+			else {
+				out_of_place_corners(cube);
+			}
 
+		} while (cube[0][0] != 1);
+		out_of_place_corners(cube);
+
+	} while (!solvedCorners(cube));
 }
