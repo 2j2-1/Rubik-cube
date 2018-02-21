@@ -10,7 +10,6 @@ void text_to_move(int cube[][9], char c);
 void string_to_move(int cube[][9], const char* c);
 void reverse_string_to_move(int cube[][9], const char* c);
 void out_of_place(int cube[][9]);
-void swapCorners(int cube[][9]);
 void swapCorners(int cube[][9], int set);
 void out_of_place_corners(int cube[][9]);
 void solve(int cube[][9]);

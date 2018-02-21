@@ -115,16 +115,9 @@ void out_of_place_corners(int cube[][9]) {
 		}
 	}
 }
-void swapCorners(int cube[][9]) {
-	char * c = setUp[cube[0][0] - 1];
-	string_to_move(cube, c);
-	for (int i = 0; i < 17; i++)
-	{
-		text_to_move(cube, Yperm[i]);
-	}
-	reverse_string_to_move(cube, c);
-}
 void swapCorners(int cube[][9],int set) {
+	if (set == -1)
+		set = cube[0][0] - 1;
 	char * c = setUp[set];
 	string_to_move(cube, c);
 	for (int i = 0; i < 17; i++)
@@ -155,7 +148,7 @@ void solve(int cube[][9]) {
 				string_to_move(cube, "URfrBRFrburBrffRbrffrr");
 			}
 			else if (cube[0][0] != 10 && cube[0][0] != 39) {
-				swapCorners(cube);
+				swapCorners(cube,-1);
 			}
 			else {
 				out_of_place_corners(cube);
