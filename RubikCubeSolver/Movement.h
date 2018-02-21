@@ -3,7 +3,6 @@
 #include <string>
 #include "cGame.h"
 void scramble(int cube[][9], int amount);
-void text_to_move(int cube[][9], std::string c);
 void move(int cube[][9], int face, int direction);
 void front_face(int cube[][9], int face, int direction);
 void swapEdges(int cube[][9]);
@@ -16,4 +15,5 @@ void swapCorners(int cube[][9]);
 void swapCorners(int cube[][9], int set);
 void out_of_place_corners(int cube[][9]);
 void solve(int cube[][9]);
+void print_cube(int cube[][9]);
 #endif

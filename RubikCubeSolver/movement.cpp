@@ -2,12 +2,13 @@
 #include "Movement.h"
 #include "Utils.h"
 #include "Validation.h"
-#include <string>
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
 #include <dos.h>
 #include <windows.h>
+#include <cctype>
+#include <clocale>
 const int cubeFace[][4] = { { 1,4,3,2 },
 { 0,2,5,4 },
 { 0,3,5,1 },
@@ -23,11 +24,11 @@ const int cubeEdges[][12] = { { 0,1,2,0,1,2,0,1,2,0,1,2 },
 const int frontFace[][9] = { { 2,5,8,1,4,7,0,3,6 },
 { 8,7,6,5,4,3,2,1,0 },
 { 6,3,0,7,4,1,8,5,2 } };
-char * setUp[54] = { "", "bbdll","rrdrr","", "","","ffdrr","ffdddll","","","lfffdddll","f","llfffdddll","","fffdddll","dfffr","lllfffdddll","fffdrr","ffr","ffflll","fr","lll","","fflll","fffr","flll","r","ffdr","","rdddr","fdddll","","bbbdll","rrrdddr","dddflll","dddr","rrr","bl","","bbl","","l","ddfffr","bbbl","dfffdrr","ddrr","dddll","drr","ll","","ddll","dddrr","dll","rr" };
-std::string moves[14] = { "u","l","f","r","b","d","U","L","F","R","B","D" };
-std::string Tperm[15] = { "r","u","r'","u'","r'","f","r","r","u'","r'","u'","r","u","r'","f'"};
-std::string Yperm[17] = {"f","r","u'","r'","u'","r","u","r'","f'","r","u","r'","u'","r'","f","r","f'"};
-int sleep = 10;
+char * setUp[54] = { "", "bbdll","rrdrr","", "","","ffdrr","ffDll","","","lFDll","f","llFDll","","FDll","dFr","LFDll","Fdrr","ffr","FL","fr","L","","ffL","Fr","fL","r","ffdr","","rDr","fDll","","Bdll","RDr","DfL","Dr","R","bl","","bbl","","l","ddFr","Bl","dFdrr","ddrr","Dll","drr","ll","","ddll","Drr","dll","rr" };
+char * moves = { "ulfrbdULFRBD" };
+char * Tperm = { "ruRURfrrURUruRF"};
+char * Yperm = {"frURUruRFruRURfrF"};
+int sleep = 0;
 
 void front_face(int cube[][9],int face, int direction) {
 	int temp[9];
@@ -51,29 +52,20 @@ void move(int cube[][9], int face, int direction) {
 	print_cube(cube);
 	Sleep(sleep);
 }
-void text_to_move(int cube[][9], std::string c) {
-	int found = find(moves, 6, c[0]);
-	if (found != -1) {
-		if (c.length() == 1)
-			move(cube, found, 9);
-		else if (c.length() == 2 && c[1] == '2') {
-			move(cube, found, 6);
-		}
-		else if (c.length() == 2 && c[1] == '\'') {
-			move(cube, found, 3);
-		}
-	}
-}
+
 void text_to_move(int cube[][9], char c) {
-	int found = find(moves, 6, c);
+	int found = find(moves, 12, c)%6;
 	if (found != -1) {
-		move(cube, found, 9);
+		if ((int)c>96)
+			move(cube, found, 9);
+		else
+			move(cube, found, 3);
 	}
 }
 void scramble(int cube[][9], int amount) {
 	int turnFace;
 	for (int i = 0; i < amount; i++) {
-		turnFace = rand() % sizeof(moves) / sizeof(std::string);
+		turnFace = rand() % 12;
 		text_to_move(cube, moves[turnFace]);
 	}
 }
@@ -105,9 +97,10 @@ void string_to_move(int cube[][9], const char* c) {
 void reverse_string_to_move(int cube[][9], const char* c) {
 	for (int i = strlen(c) -1; i >= 0; i--)
 	{
-		text_to_move(cube, c[i]);
-		text_to_move(cube, c[i]);
-		text_to_move(cube, c[i]);
+		if ((int)c[i] > 96)
+			text_to_move(cube, c[i] - 32);
+		else
+			text_to_move(cube, c[i] + 32);
 	}
 }
 void out_of_place(int cube[][9]) {
@@ -164,10 +157,10 @@ void solve(int cube[][9]) {
 	do {
 		do {
 			if (cube[0][0] == 10 && cube[0][8] == 21) {
-				string_to_move(cube, "urrrfrbbbrrrfffrburrrfrrrbbrfffrrrbbrruu");
+				string_to_move(cube, "uRfrBRFrbuRfRbbrFRbbrruu");
 			}
 			else if ((cube[0][0] == 39 && cube[0][8] == 28)) {
-				string_to_move(cube, "uuurrrfrbbbrrrfffrburbbbrffrrrbrffrr");
+				string_to_move(cube, "URfrBRFrburBrffRbrffrr");
 			}
 			else if (cube[0][0] != 10 && cube[0][0] != 39) {
 				swapCorners(cube);
