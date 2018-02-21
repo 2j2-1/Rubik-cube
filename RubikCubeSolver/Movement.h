@@ -5,7 +5,6 @@
 void scramble(int cube[][9], int amount);
 void move(int cube[][9], int face, int direction);
 void front_face(int cube[][9], int face, int direction);
-void swapEdges(int cube[][9]);
 void swapEdges(int cube[][9], int set);
 void text_to_move(int cube[][9], char c);
 void string_to_move(int cube[][9], const char* c);

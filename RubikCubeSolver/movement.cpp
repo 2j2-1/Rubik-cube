@@ -69,17 +69,9 @@ void scramble(int cube[][9], int amount) {
 		text_to_move(cube, moves[turnFace]);
 	}
 }
-
-void swapEdges(int cube[][9]) {
-	char * c = setUp[cube[0][5] - 1];
-	string_to_move(cube, c);
-	for (int i = 0; i < 15; i++)
-	{
-		text_to_move(cube, Tperm[i]);
-	}
-	reverse_string_to_move(cube, c);
-}
 void swapEdges(int cube[][9],int set) {
+	if (set==-1)
+		set = cube[0][5] - 1;
 	char * c = setUp[set];
 	string_to_move(cube, c);
 	for (int i = 0; i < 15; i++)
@@ -145,7 +137,7 @@ void solve(int cube[][9]) {
 	do {
 		do {
 			if (cube[0][5] != 29) {
-				swapEdges(cube);
+				swapEdges(cube,-1);
 			}
 			else {
 				out_of_place(cube);
