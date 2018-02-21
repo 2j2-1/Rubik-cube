@@ -23,7 +23,7 @@ public:
 
 	bool collide(float *, float *);
 
-	wchar_t *screen = new wchar_t[screenWidth*screenHeight];
+	char *screen = new char[screenWidth*screenHeight];
 	HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	DWORD dwBytesWritten = 0;
 

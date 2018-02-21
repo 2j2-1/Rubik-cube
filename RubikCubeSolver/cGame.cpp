@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "cGame.h"
 #include <iostream>
 #include <vector>
@@ -33,10 +33,29 @@ void cGame::rect(float * rectangle, char c) {
 		}
 	}
 }
+WORD faceColors[] = { 238,153 ,204,170,187,255 };
+int count = 0;
+void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol){
+	COORD here;
+	here.X = x;
+	here.Y = y;
+	//fix this
+	WORD attribute = 0;
+	if (*symbol != 32) 
+		attribute = faceColors[*symbol % 6];
+	
+	DWORD written;
 
+	WriteConsoleOutputAttribute(h, &attribute, 1, here, &written);
+	WriteConsoleOutputCharacterA(h, symbol, 1, here, &written);
+}
 void cGame::draw() {
 	screen[screenWidth * screenHeight - 1] = '\0';
-	WriteConsoleOutputCharacter(hConsole, screen, screenWidth * screenHeight, { 0,0 }, &dwBytesWritten);
+	for (int i = 0; i < screenHeight*screenWidth-1; i++)
+	{
+		write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth),&screen[i]);
+	}
+	
 }
 
 void cGame::setup() {
