@@ -17,7 +17,7 @@ int locations[][6] = { { 3,0 },{ 0,3 },{ 3,3 },{ 6,3 },{ 9,3 },{ 3,6 } };
 char symbols[] = { '!','"','#','$','%','&' };
 // fix this to display at any size
 int cubeX = 1;
-int cubeY = 1;
+int cubeY = 1; 
 int amountOfMoves = 1;
 void updateScreen() {
 	int i;
