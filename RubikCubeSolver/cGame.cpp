@@ -41,19 +41,21 @@ void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol){
 	here.Y = y;
 	//fix this
 	WORD attribute = 0;
-	if (*symbol != 32) 
-		attribute = faceColors[*symbol % 6];
-	
 	DWORD written;
-
-	WriteConsoleOutputAttribute(h, &attribute, 1, here, &written);
-	WriteConsoleOutputCharacterA(h, symbol, 1, here, &written);
+	if (*symbol > 47 && *symbol < 58) {
+		attribute = faceColors[*symbol % 6];
+		
+		WriteConsoleOutputAttribute(h, &attribute, 1, here, &written);
+	}
+	else
+		WriteConsoleOutputCharacterA(h, "0", 1, here, &written);
 }
 void cGame::draw() {
 	screen[screenWidth * screenHeight - 1] = '\0';
 	for (int i = 0; i < screenHeight*screenWidth-1; i++)
 	{
-		write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth),&screen[i]);
+		if (screen[i]!=32)
+			write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth),&screen[i]);
 	}
 	
 }
