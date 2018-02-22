@@ -87,28 +87,19 @@ void string_to_move(int cube[][9], const char* c) {
 }
 void reverse_string_to_move(int cube[][9], const char* c) {
 	for (int i = strlen(c) -1; i >= 0; i--)
-	{
-		if ((int)c[i] > 96)
-			text_to_move(cube, c[i] - 32);
-		else
-			text_to_move(cube, c[i] + 32);
-	}
+		text_to_move(cube, (c[i] > 96)? c[i] - 32 : c[i] + 32);
 }
 void out_of_place(int cube[][9]) {
 	for (int i = 1; i < 54; i++)
-	{
 		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 1 && cube[i / 9][i % 9] != 29 && cube[i / 9][i % 9] != 4 && cube[i / 9][i % 9] != 6) {
-			//std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
 			swapEdges(cube, i);
 			break;
-		}
 	}
 }
 void out_of_place_corners(int cube[][9]) {
 	for (int i = 1; i < 54; i++)
 	{
 		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == 0 && cube[i / 9][i % 9] != 1 && cube[i / 9][i % 9] != 9 && cube[i / 9][i % 9] != 10 && cube[i / 9][i % 9] != 28 && cube[i / 9][i % 9] != 21 && cube[i / 9][i % 9] != 39) {
-			//std::cout << cube[i / 9][i % 9] << "," << i + 1 << std::endl;
 			swapCorners(cube, i);
 			break;
 		}
@@ -120,38 +111,29 @@ void swapCorners(int cube[][9],int set) {
 	char * c = setUp[set];
 	string_to_move(cube, c);
 	for (int i = 0; i < 17; i++)
-	{
 		text_to_move(cube, Yperm[i]);
-	}
 	reverse_string_to_move(cube, c);
 }
 void solve(int cube[][9]) {
 	do {
 		do {
-			if (cube[0][5] != 29) {
+			if (cube[0][5] != 29) 
 				swapEdges(cube,-1);
-			}
-			else {
+			else 
 				out_of_place(cube);
-			}
 		} while (cube[0][5] != 6);
 		out_of_place(cube);
-		
 	} while (!solvedEdges(cube));
 	do {
 		do {
-			if (cube[0][0] == 10 && cube[0][8] == 21) {
+			if (cube[0][0] == 10 && cube[0][8] == 21) 
 				string_to_move(cube, "uRfrBRFrbuRfRbbrFRbbrruu");
-			}
-			else if ((cube[0][0] == 39 && cube[0][8] == 28)) {
+			else if ((cube[0][0] == 39 && cube[0][8] == 28)) 
 				string_to_move(cube, "URfrBRFrburBrffRbrffrr");
-			}
-			else if (cube[0][0] != 10 && cube[0][0] != 39) {
+			else if (cube[0][0] != 10 && cube[0][0] != 39) 
 				swapCorners(cube,-1);
-			}
-			else {
+			else
 				out_of_place_corners(cube);
-			}
 
 		} while (cube[0][0] != 1);
 		out_of_place_corners(cube);

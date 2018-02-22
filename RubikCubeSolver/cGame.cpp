@@ -17,7 +17,7 @@ void cGame::draw_pixel(int x, int y, char c) {
 void cGame::blank_screen() {
 	for (int y = 0; y < this->screenHeight; y++) {
 		for (int x = 0; x < screenWidth; x++) {
-			draw_pixel(x, y, ' ');
+			draw_pixel(x, y, 32);
 		}
 	}
 }
@@ -42,13 +42,13 @@ void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol){
 	//fix this
 	WORD attribute = 0;
 	DWORD written;
-	if (*symbol > 47 && *symbol < 58) {
-		attribute = faceColors[*symbol % 6];
+	if (*symbol > 32 && *symbol < 39) {
+		attribute = faceColors[(*symbol+3) % 6];
 		
 		WriteConsoleOutputAttribute(h, &attribute, 1, here, &written);
 	}
 	else
-		WriteConsoleOutputCharacterA(h, "0", 1, here, &written);
+		WriteConsoleOutputCharacterA(h, symbol, 1, here, &written);
 }
 void cGame::draw() {
 	screen[screenWidth * screenHeight - 1] = '\0';
