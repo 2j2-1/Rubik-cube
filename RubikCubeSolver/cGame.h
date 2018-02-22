@@ -9,7 +9,7 @@
 class cGame {
 public:
 	int screenWidth = 120;
-	int screenHeight = 40;
+	int screenHeight = 45;
 
 
 	void draw_pixel(int, int, char);

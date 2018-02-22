@@ -50,7 +50,7 @@ void move(int cube[][9], int face, int direction) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
 	print_cube(cube);
-	//Sleep(sleep);
+	Sleep(sleep);
 }
 void text_to_move(int cube[][9], char c) {
 	int found = find(moves, 12, c)%6;

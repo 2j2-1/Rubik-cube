@@ -13,15 +13,19 @@ int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 { 37,38,39,40,41,42,43,44,45 },
 { 46,47,48,49,50,51,52,53,54 } };
 cGame game;
-int locations[][6] = { { 20,0 },{ 0,12 },{ 20,12 },{ 40,12 },{ 60,12 },{ 20,24 } };
+int locations[][6] = { { 3,0 },{ 0,3 },{ 3,3 },{ 6,3 },{ 9,3 },{ 3,6 } };
 char symbols[] = { '0','1','2','3','4','5' };
-
+// fix this to display at any size
+int cubeX = 9;
+int cubeY = 4;
 void print_cube(int cube[][9]) {
 	for (int i = 0; i < 54; i++)
 	{
-		for (int j = 0; j < 15; j++)
+		for (int j = 0; j < cubeX*cubeY; j++)
 		{
-			game.draw_pixel(((i % 3) * 6) + j % 5 + locations[i / 9][0], (((i % 9) / 3) * 4) + j / 5 + locations[i / 9][1], symbols[(cube[i / 9][i % 9] - 1) / 9]);
+			game.draw_pixel(((i % 3) * (cubeX+1)) + j % cubeX + locations[i / 9][0]*(cubeX+1),
+						   (((i % 9) / 3) * (cubeY+1)) + j / cubeX + locations[i / 9][1]*(cubeY+1),
+						   symbols[(cube[i / 9][i % 9] - 1) / 9]);
 		}
 	}
 	game.draw();
@@ -33,6 +37,7 @@ int main() {
 	game.blank_screen();
 	srand(time(NULL));
 	scramble(cube, 40);
+	Sleep(1000);
 	print_cube(cube);
 	solve(cube);
 	print_cube(cube);
