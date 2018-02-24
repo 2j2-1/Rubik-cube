@@ -35,29 +35,29 @@ void cGame::rect(float * rectangle, char c) {
 }
 WORD faceColors[] = { 238,153 ,204,170,187,255 };
 int count = 0;
-void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol){
+void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol,int cubeSize){
 	COORD here;
 	here.X = x;
 	here.Y = y;
 	//fix this
-	WORD attribute = 0;
+	WORD attribute = faceColors[(*symbol + 3) % 6];
 	DWORD written;
-	if (*symbol > 32 && *symbol < 39) {
-		attribute = faceColors[(*symbol+3) % 6];
+	FillConsoleOutputAttribute(h, attribute, cubeSize, here, &written);
+
 		
-		WriteConsoleOutputAttribute(h, &attribute, 1, here, &written);
-	}
-	else
-		WriteConsoleOutputCharacterA(h, symbol, 1, here, &written);
 }
-void cGame::draw() {
+void cGame::draw(int cubeSize) {
+	DWORD written;
 	screen[screenWidth * screenHeight - 1] = '\0';
 	for (int i = 0; i < screenHeight*screenWidth-1; i++)
 	{
-		if (screen[i]!=32)
-			write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth),&screen[i]);
+		if (screen[i] > 32 && screen[i] < 39) {
+			write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth), &screen[i],cubeSize);
+			i += cubeSize;
+		}
+
 	}
-	
+	WriteConsoleOutputCharacterA(hConsole, screen, screenHeight*screenWidth, {0,0}, &written);
 }
 
 void cGame::setup() {

@@ -15,7 +15,7 @@ public:
 	void draw_pixel(int, int, char);
 	void blank_screen();
 	void rect(float *, char);
-	void draw();
+	void draw(int);
 	void setup();
 	void line(float *, char);
 	void print(std::string, int, int);

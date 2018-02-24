@@ -140,3 +140,6 @@ void solve(int cube[][9]) {
 
 	} while (!solvedCorners(cube));
 }
+//void solve(int cube[][9]) {
+//
+//}
