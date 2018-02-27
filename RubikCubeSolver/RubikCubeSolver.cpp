@@ -89,57 +89,24 @@ void print_cube() {
 	updateScreen();
 	game.draw(cubeX);
 }
-//void print_cube() {
-//	for (int j = 0; j < 3; j++) {
-//		std::cout << "         ";
-//		for (int i = 0; i < 3; i++) {
-//			if (cube[0][j * 3 + i] < 10)
-//				 std::cout << " ";
-//			std::cout << cube[0][j * 3 + i] << " ";
-//			
-//		}
-//		std::cout << std::endl;
-//		
-//	}
-//	
-//		for (int j = 1; j < 4; j++) {
-//		for (int i = 0; i < 12; i++) {
-//			if (cube[(i / 3) + 1][(i % 3) + ((j - 1) * 3)] < 10)
-//				 std::cout << " ";
-//			std::cout << cube[(i / 3) + 1][(i % 3) + ((j - 1) * 3)] << " ";
-//			
-//		}
-//		std::cout << std::endl;
-//		
-//	}
-//	
-//		for (int j = 0; j < 3; j++) {
-//		std::cout << "         ";
-//		for (int i = 0; i < 3; i++) {
-//			if (cube[5][j * 3 + i] < 10)
-//				 std::cout << " ";
-//			std::cout << cube[5][j * 3 + i] << " ";
-//			
-//		}
-//		std::cout << std::endl;
-//		
-//	}
-//	std::cout << std::endl;
-//	std::cin.get();
-//	
-//}
+
 int main() {
-	system("python Images_to_colors.py");
+	int choice;
+	std::cout << "1.Video input\n2.Scramble\n3.Exsiting file\n";
+	std::cin >> choice;
+	if (choice == 1)
+		system("python video_to_colors.py");
 	game.setup();
 	game.blank_screen();
+	if (choice != 2) {
+		std::string line;
+		std::ifstream myfile("Colors.txt");
+		char * faces = new char[55];
+		myfile >> line;
+		myfile.close();
 
-	std::string line;
-	std::ifstream myfile("Colors.txt");
-	char * faces = new char[55];
-	myfile >> line;
-	myfile.close();
-
-	colors_to_cube(line);
+		colors_to_cube(line);
+	}
 	print_cube();
 	srand(1);
 	amountOfMoves = 0;
