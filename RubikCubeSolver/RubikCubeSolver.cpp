@@ -104,7 +104,6 @@ int main() {
 		char * faces = new char[55];
 		myfile >> line;
 		myfile.close();
-
 		colors_to_cube(line);
 	}
 	print_cube();
@@ -113,7 +112,7 @@ int main() {
 	updateScreen();
 	//scramble(cube, 40);
 	
-	Sleep(1000);
+	Sleep(5000);
 	solve(cube);
 	Sleep(1000);
 	while (true) {}
