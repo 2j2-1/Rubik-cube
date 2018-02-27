@@ -48,14 +48,13 @@ void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol,int cubeSize
 }
 void cGame::draw(int cubeSize) {
 	DWORD written;
-	screen[screenWidth * screenHeight - 1] = '\0';
+	//screen[screenWidth * screenHeight - 1] = '\0';
 	for (int i = 0; i < screenHeight*screenWidth-1; i++)
 	{
 		if (screen[i] > 32 && screen[i] < 39) {
 			write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth), &screen[i],cubeSize);
 			i += cubeSize;
 		}
-
 	}
 	WriteConsoleOutputCharacterA(hConsole, screen, screenHeight*screenWidth, {0,0}, &written);
 }

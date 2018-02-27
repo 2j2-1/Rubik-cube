@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <string>
+
 class cGame {
 public:
 	int screenWidth = 120;

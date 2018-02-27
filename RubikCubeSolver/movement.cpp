@@ -49,7 +49,7 @@ void move(int cube[][9], int face, int direction) {
 	for (int i = 0; i < 12; i++) {
 		cube[cubeFace[face][i / 3]][cubeEdges[face][i]] = temp[(i + direction) % 12];
 	}
-	print_cube(cube);
+	print_cube();
 	Sleep(sleep);
 }
 void text_to_move(int cube[][9], char c) {
