@@ -25,7 +25,7 @@ history = 0
 historyCube = [0,0,0,0,0,0,0,0,0]
 index = "YBRGOW"
 coloredCube = [0,0,0,0,0,0]
-calibrated = True
+calibrated = False
 gridCalibrated = False
 COLORS = ["Yellow","Blue","Red","Green","Orange","White"]
 
@@ -84,6 +84,7 @@ def calibrate():
                     temp = np.uint8([[cube[x*3+y]]])
                     hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
                     coloredCube[x*3+y] = hsv[0]
+                    print hsv
             temp = sum(coloredCube) / len(coloredCube)
             draw_grid(frame,[0,0,0,0,0,0,0,0,0])
             cv2.imshow("calibrate",frame)
@@ -97,6 +98,9 @@ def calibrate():
     red = calibratedColors[2]
     green = calibratedColors[3]
     orange = calibratedColors[4]
+    file = open("calibratedColors.txt","w")
+    for i in calibratedColors: 
+        file.write(str(i)+"\n") 
 
 def lts(list,string):
     tempString = ""
@@ -130,7 +134,17 @@ def get_color(frame):
                 cube[x*3+y] = " "
 
 def setup():
+    global yellow,blue,red,green,orange
     global gridCalibrated,calibrated
+    file = open("calibratedColors.txt","r") 
+    temp = file.read().split() 
+    yellow = int(temp[0])
+    blue = int(temp[1])
+    red = int(temp[2])
+    green = int(temp[3])
+    orange = int(temp[4])
+    file.close()
+
     if not gridCalibrated:
         calibrate_grid()  
         gridCalibrated = True
@@ -180,7 +194,6 @@ def save():
     file = open("Colors.txt","w") 
     file.write(string) 
     
-
 while face < 6:
     _, frame = cap.read()    
     cube = [0,0,0,0,0,0,0,0,0]
