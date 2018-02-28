@@ -129,10 +129,8 @@ def get_color(frame):
             else:
                 cube[x*3+y] = " "
 
-while face < 6:
-    _, frame = cap.read()    
-    cube = [0,0,0,0,0,0,0,0,0]
-
+def setup():
+    global gridCalibrated,calibrated
     if not gridCalibrated:
         calibrate_grid()  
         gridCalibrated = True
@@ -141,6 +139,11 @@ while face < 6:
         calibrate()
         calibrated = True
         cv2.destroyAllWindows()
+while face < 6:
+    _, frame = cap.read()    
+    cube = [0,0,0,0,0,0,0,0,0]
+
+    setup()
     get_color(frame)
     draw_grid(frame,cube)
     
@@ -164,15 +167,19 @@ while face < 6:
         else:
             print "Already Scaned",COLORS[index.index(cube[4])],"face"
             history = 0
+    
+    elif k == 27:
+        break
 
     if historyCube == cube and " " not in cube:
         history+=1
     else:
-
         historyCube = cube[:]
         history = 0
-    # print history
+
+
 string = ""
+
 try:
     for i in range(6):
         for x in range(3):
