@@ -139,17 +139,9 @@ def setup():
         calibrate()
         calibrated = True
         cv2.destroyAllWindows()
-while face < 6:
-    _, frame = cap.read()    
-    cube = [0,0,0,0,0,0,0,0,0]
 
-    setup()
-    get_color(frame)
-    draw_grid(frame,cube)
-    
-    cv2.imshow('frame',frame)
-
-    k = cv2.waitKey(5) & 0xFF
+def saveFace(k):
+    global history,string,cube,face,historyCube
     if (k == 32 or history == historyTolerance):
         if lts(historyCube,string):
             if " " not in cube:
@@ -167,9 +159,6 @@ while face < 6:
         else:
             print "Already Scaned",COLORS[index.index(cube[4])],"face"
             history = 0
-    
-    elif k == 27:
-        break
 
     if historyCube == cube and " " not in cube:
         history+=1
@@ -177,18 +166,32 @@ while face < 6:
         historyCube = cube[:]
         history = 0
 
+def save():
+    string = ""
 
-string = ""
+    try:
+        for i in range(6):
+            for x in range(3):
+                    for y in range(3):
+                        string+=coloredCube[i][y*3+x].lower()
+    except:
+        pass
 
-try:
-    for i in range(6):
-        for x in range(3):
-                for y in range(3):
-                    string+=coloredCube[i][y*3+x].lower()
-except:
-    pass
+    print string
+    file = open("Colors.txt","w") 
+    file.write(string) 
+    
+while face < 6:
+    _, frame = cap.read()    
+    cube = [0,0,0,0,0,0,0,0,0]
 
-print string
-file = open("Colors.txt","w") 
-file.write(string) 
+    k = cv2.waitKey(5) & 0xFF
+    setup()
+    get_color(frame)
+    draw_grid(frame,cube)
+    saveFace(k)
+    cv2.imshow('frame',frame)
+    if k == 27:
+        break
+save()
 cv2.destroyAllWindows()
