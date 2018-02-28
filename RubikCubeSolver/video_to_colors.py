@@ -18,6 +18,7 @@ green = 70
 blue = 105
 orange = 10
 tolerance = 10
+sensitivity = 10
 
 historyTolerance = 30
 history = 0
@@ -35,22 +36,22 @@ def calibrate_grid():
         global xoff,yoff,size
         k = cv2.waitKey(5) & 0xFF
         if k == 119:
-            yoff-=10
+            yoff-=sensitivity
         elif k == 115:
-            yoff+=10
+            yoff+=sensitivity
         elif k ==97:
-            xoff-=10
+            xoff-=sensitivity
         elif k== 100:
-            xoff+=10
+            xoff+=sensitivity
         elif k == 49:
             size+=1
         elif k == 50:
             size-=1
         elif k == 27:
             break
-        cv2.imshow('frame',frame)
+        cv2.imshow('Calibrate Grid',frame)
 
-def draw_grid(frame,cube=[0,0,0,0,0,0,0,0,0]):
+def draw_grid(frame,cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
     for x in range(3):
         for y in range(3):
             if cube[x*3+y] == "R":
@@ -67,7 +68,7 @@ def draw_grid(frame,cube=[0,0,0,0,0,0,0,0,0]):
                 color = (255,0,0)
             else:
                 color = [0,0,0]
-            cv2.rectangle(frame,(size*(x)+xoff,size*(y)+yoff),(size*(x+1)+xoff,size*(y+1)+yoff),color,5)
+            cv2.rectangle(frame,(size*(x)+xoff+(thickness),size*(y)+yoff+(thickness)),(size*(x+1)+xoff-(thickness),size*(y+1)+yoff-(thickness)),color,thickness)
 
 def calibrate():
     global yellow,blue,red,green,orange
@@ -96,7 +97,6 @@ def calibrate():
     red = calibratedColors[2]
     green = calibratedColors[3]
     orange = calibratedColors[4]
-
 
 def lts(list,string):
     tempString = ""
@@ -168,7 +168,6 @@ def saveFace(k):
 
 def save():
     string = ""
-
     try:
         for i in range(6):
             for x in range(3):
@@ -181,6 +180,7 @@ def save():
     file = open("Colors.txt","w") 
     file.write(string) 
     
+
 while face < 6:
     _, frame = cap.read()    
     cube = [0,0,0,0,0,0,0,0,0]
@@ -190,7 +190,7 @@ while face < 6:
     get_color(frame)
     draw_grid(frame,cube)
     saveFace(k)
-    cv2.imshow('frame',frame)
+    cv2.imshow('Rubik Cube Scanner',frame)
     if k == 27:
         break
 save()
