@@ -115,17 +115,17 @@ void swapCorners(int cube[][9],int set) {
 	reverse_string_to_move(cube, c);
 }
 void solve(int cube[][9]) {
-	do {
-		do {
+	while (!solvedEdges(cube)){
+		while (cube[0][5] != 6) {
 			if (cube[0][5] != 29) 
 				swapEdges(cube,-1);
 			else 
 				out_of_place(cube);
-		} while (cube[0][5] != 6);
+		} 
 		out_of_place(cube);
-	} while (!solvedEdges(cube));
-	do {
-		do {
+	} 
+	while (!solvedCorners(cube)) {
+		while (cube[0][0] != 1) {
 			if (cube[0][0] == 10 && cube[0][8] == 21) 
 				string_to_move(cube, "uRfrBRFrbuRfRbbrFRbbrruu");
 			else if ((cube[0][0] == 39 && cube[0][8] == 28)) 
@@ -134,11 +134,9 @@ void solve(int cube[][9]) {
 				swapCorners(cube,-1);
 			else
 				out_of_place_corners(cube);
-
-		} while (cube[0][0] != 1);
+		} 
 		out_of_place_corners(cube);
-
-	} while (!solvedCorners(cube));
+	} 
 }
 //void solve(int cube[][9]) {
 //

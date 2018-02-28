@@ -85,8 +85,9 @@ void print_cube() {
 				game.draw_pixel(((i % 3) * (cubeX + 1)) + j % cubeX + locations[i / 9][0] * (cubeX + 1),
 				(((i % 9) / 3) * (cubeY + 1)) + j / cubeX + locations[i / 9][1] * (cubeY + 1),
 					symbols[(cube[i / 9][i % 9] - 1) / 9]);
-	amountOfMoves++;
+	
 	updateScreen();
+	amountOfMoves++;
 	game.draw(cubeX);
 }
 
@@ -106,12 +107,12 @@ int main() {
 		myfile.close();
 		colors_to_cube(line);
 	}
-	print_cube();
+	
 	srand(1);
 	amountOfMoves = 0;
-	updateScreen();
-	//scramble(cube, 40);
-	
+	if (choice == 2)
+		scramble(cube, 40);
+	print_cube();
 	Sleep(5000);
 	solve(cube);
 	Sleep(1000);
