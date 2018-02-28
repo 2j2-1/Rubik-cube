@@ -8,8 +8,8 @@ string = ""
  # Take each frame
 _, frame = cap.read()
 #config
-xoff = 230
-yoff = 0
+xoff = 155
+yoff = 150
 face = 0
 white = 150
 red = 180
@@ -18,11 +18,23 @@ green = 70
 blue = 110
 orange = 10
 tolerance = 10
-size = 60
+size = 105
 historyTolerance = 30
 
 history = 0
 historyCube = [0,0,0,0,0,0,0,0,0]
+index = "YBRGOW"
+coloredCube = [0,0,0,0,0,0]
+
+def lts(list,string):
+    tempString = ""
+    for x in range(3):
+            for y in range(3):
+                tempString+=list[y*3+x]
+    for i in range(len(string)-len(tempString)+1):
+        if tempString.lower()==string[i:i+len(tempString)]:
+            return False
+    return True
 while face < 6:
     _, frame = cap.read()    
     cube = [0,0,0,0,0,0,0,0,0]
@@ -34,7 +46,6 @@ while face < 6:
             hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
             if hsv[1]<white and hsv[0]<50:
                 cube[x*3+y] = "W" 
-                print hsv
             elif hsv[0]>red - tolerance and hsv[0] < red + tolerance:
                 cube[x*3+y] = "R"    
             elif hsv[0]> yellow - tolerance and hsv[0] < yellow + tolerance:
@@ -79,11 +90,13 @@ while face < 6:
         xoff-=10
     elif k== 100:
         xoff+=10
-    elif k == 32 or history == historyTolerance:
+    elif (k == 32 or history == historyTolerance) and lts(historyCube,string):
         if " " not in cube:
             for x in range(3):
                 for y in range(3):
                     string+=cube[y*3+x].lower()
+            print index.index(cube[4])
+            coloredCube[index.index(cube[4])] = cube
             face+=1
             print "Saved face",face
             history = 0
@@ -101,11 +114,21 @@ while face < 6:
     if historyCube == cube and " " not in cube:
         history+=1
     else:
+
         historyCube = cube[:]
         history = 0
-    print history
-    
+    # print history
+string = ""
+try:
+    for i in range(6):
+        for x in range(3):
+                for y in range(3):
+                    string+=coloredCube[i][y*3+x].lower()
+except:
+    pass
+
 print string
+print coloredCube
 file = open("Colors.txt","w") 
 file.write(string) 
 cv2.destroyAllWindows()
