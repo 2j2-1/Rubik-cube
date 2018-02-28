@@ -8,6 +8,8 @@
 #include <Windows.h>
 #include <string>
 
+WORD faceColors[] = { 238,153 ,204,170,187,255 };
+
 void cGame::draw_pixel(int x, int y, char c) {
 	if (y >= 0 && y <= screenHeight && x >= 0 && x < screenWidth) {
 		screen[y*screenWidth + x] = c;
@@ -33,26 +35,15 @@ void cGame::rect(float * rectangle, char c) {
 		}
 	}
 }
-WORD faceColors[] = { 238,153 ,204,170,187,255 };
-int count = 0;
-void write_symbol_in_color(HANDLE h, SHORT x, SHORT y, char* symbol,int cubeSize){
-	COORD here;
-	here.X = x;
-	here.Y = y;
-	//fix this
-	WORD attribute = faceColors[(*symbol + 3) % 6];
-	DWORD written;
-	FillConsoleOutputAttribute(h, attribute, cubeSize, here, &written);
 
-		
-}
 void cGame::draw(int cubeSize) {
 	DWORD written;
 	//screen[screenWidth * screenHeight - 1] = '\0';
 	for (int i = 0; i < screenHeight*screenWidth-1; i++)
 	{
 		if (screen[i] > 32 && screen[i] < 39) {
-			write_symbol_in_color(hConsole, i % (short)screenWidth, (short)(i / screenWidth), &screen[i],cubeSize);
+			WORD attribute = faceColors[(screen[i] + 3) % 6];
+			FillConsoleOutputAttribute(hConsole, attribute, cubeSize, {i % (short)screenWidth, (short)(i / screenWidth)}, &written);
 			i += cubeSize;
 		}
 	}

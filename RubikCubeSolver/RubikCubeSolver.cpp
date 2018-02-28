@@ -8,20 +8,22 @@
 #include <string>
 #include <fstream>
 
+//CONFIG
+int boxSize = 20;
+int cubeX = 9;
+int cubeY = 4;
+
 int cube[][9] = { { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 				{ 10,11,12,13,14,15,16,17,18 },
 				{ 19,20,21,22,23,24,25,26,27 },
 				{ 28,29,30,31,32,33,34,35,36 },
 				{ 37,38,39,40,41,42,43,44,45 },
 				{ 46,47,48,49,50,51,52,53,54 } };
-//int cube[6][9];
 cGame game;
 int locations[][6] = { { 3,0 },{ 0,3 },{ 3,3 },{ 6,3 },{ 9,3 },{ 3,6 } };
 char symbols[] = { '!','"','#','$','%','&' };
-// fix this to display at any size
-int cubeX = 9;
-int cubeY = 4;
 int amountOfMoves = 1;
+
 
 int colors_to_cube(std::string cubeColors) {
 	int pairs[][3] = {
@@ -69,8 +71,6 @@ int colors_to_cube(std::string cubeColors) {
 }
 
 void updateScreen() {
-	int i;
-	int boxSize = 20;
 	game.print("Stats", game.screenWidth - boxSize, 0);
 	game.print("Moves:", game.screenWidth - boxSize, 2);
 	std::string moveString = std::to_string(amountOfMoves);
@@ -78,6 +78,7 @@ void updateScreen() {
 	game.print(moveString, game.screenWidth - moveString.length(), 2);
 
 }
+
 void print_cube() {
 	for (int i = 0; i < 54; i++)
 		for (int j = 0; j < cubeX*cubeY; j++)
