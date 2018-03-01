@@ -18,22 +18,24 @@ green = 70
 blue = 105
 orange = 10
 tolerance = 10
-sensitivity = 10
+sensitivity = 5
 
 historyTolerance = 30
 history = 0
 historyCube = [0,0,0,0,0,0,0,0,0]
 index = "YBRGOW"
 coloredCube = [0,0,0,0,0,0]
-calibrated = False
+calibrated = True
 gridCalibrated = False
 COLORS = ["Yellow","Blue","Red","Green","Orange","White"]
 
 def calibrate_grid():
+    global xoff,yoff,size
+
     while 1:
         _, frame = cap.read()
         draw_grid(frame)
-        global xoff,yoff,size
+        
         k = cv2.waitKey(5) & 0xFF
         if k == 119:
             yoff-=sensitivity
@@ -50,6 +52,9 @@ def calibrate_grid():
         elif k == 27:
             break
         cv2.imshow('Calibrate Grid',frame)
+    file = open("calibratedGrid.txt","w")
+    file.write(str(xoff)+","+str(yoff)+","+str(size))
+    file.close 
 
 def draw_grid(frame,cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
     for x in range(3):
@@ -68,7 +73,8 @@ def draw_grid(frame,cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
                 color = (255,0,0)
             else:
                 color = [0,0,0]
-            cv2.rectangle(frame,(size*(x)+xoff+(thickness),size*(y)+yoff+(thickness)),(size*(x+1)+xoff-(thickness),size*(y+1)+yoff-(thickness)),color,thickness)
+            if color:
+                cv2.rectangle(frame,(size*(x)+xoff+(thickness),size*(y)+yoff+(thickness)),(size*(x+1)+xoff-(thickness),size*(y+1)+yoff-(thickness)),color,thickness)
 
 def calibrate():
     global yellow,blue,red,green,orange
@@ -84,9 +90,8 @@ def calibrate():
                     temp = np.uint8([[cube[x*3+y]]])
                     hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
                     coloredCube[x*3+y] = hsv[0]
-                    print hsv
             temp = sum(coloredCube) / len(coloredCube)
-            draw_grid(frame,[0,0,0,0,0,0,0,0,0])
+            draw_grid(frame,10)
             cv2.imshow("calibrate",frame)
             k = cv2.waitKey(5) & 0xFF
             if k == 32 and temp not in calibratedColors:
@@ -136,6 +141,8 @@ def get_color(frame):
 def setup():
     global yellow,blue,red,green,orange
     global gridCalibrated,calibrated
+    global xoff,yoff,size
+
     file = open("calibratedColors.txt","r") 
     temp = file.read().split() 
     yellow = int(temp[0])
@@ -144,6 +151,14 @@ def setup():
     green = int(temp[3])
     orange = int(temp[4])
     file.close()
+
+    file = open("calibratedGrid.txt","r")
+    temp = file.read().split(",")
+    xoff = int(temp[0])
+    yoff = int(temp[1])
+    size = int(temp[2])
+    file.close()
+
 
     if not gridCalibrated:
         calibrate_grid()  
