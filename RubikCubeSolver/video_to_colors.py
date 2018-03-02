@@ -25,16 +25,68 @@ history = 0
 historyCube = [0,0,0,0,0,0,0,0,0]
 index = "YBRGOW"
 coloredCube = [0,0,0,0,0,0]
-calibrated = True
-gridCalibrated = False
 COLORS = ["Yellow","Blue","Red","Green","Orange","White"]
+sizeHistory = []
+corners = [0,0,0,0]
+
+# setup
+calibrated = True
+gridCalibrated = True
+dynnamicTracking = True
+
+def angle_cos(p0, p1, p2):
+    d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
+    return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
+
+def find_squares(img):
+    squares = []
+    for gray in cv2.split(img):
+        for thrs in xrange(0, 255, 26):
+            if thrs == 0:
+                bin = cv2.Canny(gray, 0, 50, apertureSize=5)
+                bin = cv2.dilate(bin, None)
+            else:
+                _retval, bin = cv2.threshold(gray, thrs, 255, cv2.THRESH_BINARY)
+            bin, contours, _hierarchy = cv2.findContours(bin, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            for cnt in contours:
+                cnt_len = cv2.arcLength(cnt, True)
+                cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
+                if len(cnt) == 4 and cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt):
+                    cnt = cnt.reshape(-1, 2)
+                    max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
+                    if max_cos < 0.1:
+                        squares.append(cnt)
+    return squares
+
+def find_cube(img):
+    global sizeHistory,corners
+    min = [1000,1000]
+    max = [0,0]
+
+    squares = find_squares(img)
+    for i in squares:
+        for j in i:
+            if sum(j) < sum(min) and j[0] > 100 and j[1] > 100:
+                min = j[:]
+            elif sum(j) > sum(max) and j[0]<400 and j[1]<400:
+                max = j[:]
+    # cv2.waitKey(0)
+    if min[0]!=1000 and max[0]!=0:
+        sizeHistory.append(int(min[0]*max[1]))
+        if len(sizeHistory) == 10:
+            del sizeHistory[0]
+        if sizeHistory[0] >= np.max(sizeHistory) -10000:
+            corners = [min[0],min[1],max[0],max[1]]
+    # cv2.drawContours( img, squares, -1, (0, 255, 0), 3 )
+    if min[0] !=1000 and max[0] != 0:
+        return corners
 
 def calibrate_grid():
     global xoff,yoff,size
 
     while 1:
         _, frame = cap.read()
-        draw_grid(frame)
+        draw_grid(frame,corners = [])
         
         k = cv2.waitKey(5) & 0xFF
         if k == 119:
@@ -56,7 +108,15 @@ def calibrate_grid():
     file.write(str(xoff)+","+str(yoff)+","+str(size))
     file.close 
 
-def draw_grid(frame,cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
+def draw_grid(frame,corners = [],cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
+    global size,xoff,yoff
+    if corners != []:
+        try:
+            xoff = corners[0]
+            yoff = corners[1]
+            size = max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3)
+        except:
+            pass
     for x in range(3):
         for y in range(3):
             if cube[x*3+y] == "R":
@@ -82,22 +142,29 @@ def calibrate():
     for i in range(5):
         print "Please show", calibratedColors[i], "side "
         while 1:
-            _, frame = cap.read()   
-            coloredCube = [0,0,0,0,0,0,0,0,0]
-            for x in range(3):
-                for y in range(3):
-                    cube[x*3+y] = frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]            
-                    temp = np.uint8([[cube[x*3+y]]])
-                    hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
-                    coloredCube[x*3+y] = hsv[0]
-            temp = sum(coloredCube) / len(coloredCube)
-            draw_grid(frame,10)
-            cv2.imshow("calibrate",frame)
-            k = cv2.waitKey(5) & 0xFF
-            if k == 32 and temp not in calibratedColors:
-                calibratedColors[i] = temp
-                print calibratedColors[i]
-                break
+            try:
+                cube = []
+                _, frame = cap.read()   
+                coloredCube = []
+                for x in range(3):
+                    for y in range(3):       
+                        temp = np.uint8([[frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]]])
+                        hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
+                        if hsv[0] != 0:
+                            coloredCube.append(hsv[0])
+
+                temp = sum(coloredCube) / len(coloredCube)
+                # print coloredCube
+                draw_grid(frame,find_cube(frame))
+                cv2.imshow("calibrate",frame)
+                k = cv2.waitKey(5) & 0xFF
+                if k == 32 and temp not in calibratedColors:
+                    calibratedColors[i] = temp
+                    print calibratedColors[i]
+                    break
+            except:
+                pass
+
     yellow = calibratedColors[0]
     blue = calibratedColors[1]
     red = calibratedColors[2]
@@ -118,56 +185,61 @@ def lts(list,string):
     return True
 
 def get_color(frame):
+
     for x in range(3):
         for y in range(3):
-            cube[x*3+y] = frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]            
-            temp = np.uint8([[cube[x*3+y]]])
-            hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
-            if hsv[1]<white and hsv[0]<50:
-                cube[x*3+y] = "W" 
-            elif hsv[0]>red - tolerance and hsv[0] < red + tolerance:
-                cube[x*3+y] = "R"    
-            elif hsv[0]> yellow - tolerance and hsv[0] < yellow + tolerance:
-                cube[x*3+y] = "Y"
-            elif hsv[0] > green - tolerance and hsv[0] < green + tolerance:
-                cube[x*3+y] = "G"
-            elif hsv[0]>blue - tolerance and hsv[0] < blue + tolerance:
-                   cube[x*3+y] = "B"
-            elif hsv[0]>orange - tolerance and hsv[0] < orange + tolerance:
-                    cube[x*3+y] = "O"
-            else:
+            try:
+                cube[x*3+y] = frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]            
+                temp = np.uint8([[cube[x*3+y]]])
+                hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
+                if hsv[1]<white and (hsv[0]<50 or hsv[0]>140):
+                    cube[x*3+y] = "W" 
+                elif hsv[0]>red - tolerance and hsv[0] < red + tolerance:
+                    cube[x*3+y] = "R"    
+                elif hsv[0]> yellow - tolerance and hsv[0] < yellow + tolerance:
+                    cube[x*3+y] = "Y"
+                elif hsv[0] > green - tolerance and hsv[0] < green + tolerance:
+                    cube[x*3+y] = "G"
+                elif hsv[0]>blue - tolerance and hsv[0] < blue + tolerance:
+                       cube[x*3+y] = "B"
+                elif hsv[0]>orange - tolerance and hsv[0] < orange + tolerance:
+                        cube[x*3+y] = "O"
+                else:
+                    cube[x*3+y] = " "
+            except:
                 cube[x*3+y] = " "
 
 def setup():
     global yellow,blue,red,green,orange
-    global gridCalibrated,calibrated
+    global gridCalibrated,calibrated,dynnamicTracking
     global xoff,yoff,size
-
-    file = open("calibratedColors.txt","r") 
-    temp = file.read().split() 
-    yellow = int(temp[0])
-    blue = int(temp[1])
-    red = int(temp[2])
-    green = int(temp[3])
-    orange = int(temp[4])
-    file.close()
-
-    file = open("calibratedGrid.txt","r")
-    temp = file.read().split(",")
-    xoff = int(temp[0])
-    yoff = int(temp[1])
-    size = int(temp[2])
-    file.close()
-
 
     if not gridCalibrated:
         calibrate_grid()  
         gridCalibrated = True
+        dynnamicTracking = False
         cv2.destroyAllWindows()
+    else:
+        file = open("calibratedGrid.txt","r")
+        temp = file.read().split(",")
+        xoff = int(temp[0])
+        yoff = int(temp[1])
+        size = int(temp[2])
+        file.close()
+
     if not calibrated:
         calibrate()
         calibrated = True
         cv2.destroyAllWindows()
+    else:
+        file = open("calibratedColors.txt","r") 
+        temp = file.read().split() 
+        yellow = int(temp[0])
+        blue = int(temp[1])
+        red = int(temp[2])
+        green = int(temp[3])
+        orange = int(temp[4])
+        file.close()
 
 def saveFace(k):
     global history,string,cube,face,historyCube
@@ -208,15 +280,17 @@ def save():
     print string
     file = open("Colors.txt","w") 
     file.write(string) 
-    
+
+
+setup()
+
 while face < 6:
     _, frame = cap.read()    
     cube = [0,0,0,0,0,0,0,0,0]
 
     k = cv2.waitKey(5) & 0xFF
-    setup()
     get_color(frame)
-    draw_grid(frame,cube)
+    draw_grid(frame,find_cube(frame) if dynnamicTracking else [],cube)
     saveFace(k)
     cv2.imshow('Rubik Cube Scanner',frame)
     if k == 27:
