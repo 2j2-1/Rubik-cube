@@ -19,6 +19,7 @@ blue = 105
 orange = 10
 tolerance = 10
 sensitivity = 5
+sqaureTolerance = 0.3
 
 historyTolerance = 30
 history = 0
@@ -33,6 +34,15 @@ corners = [0,0,0,0]
 calibrated = True
 gridCalibrated = True
 dynnamicTracking = True
+
+def validate_sqaure(min,max):
+    try:
+        temp =  float(max[0] - min[0])/(max[1] - min[1])
+        if temp> 1 - sqaureTolerance and temp < 1 + sqaureTolerance:
+            return True
+        return False
+    except:
+        return False
 
 def angle_cos(p0, p1, p2):
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
@@ -50,8 +60,8 @@ def find_squares(img):
             bin, contours, _hierarchy = cv2.findContours(bin, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
             for cnt in contours:
                 cnt_len = cv2.arcLength(cnt, True)
-                cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len, True)
-                if len(cnt) == 4 and cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt):
+                cnt = cv2.approxPolyDP(cnt, 0.03*cnt_len, True)
+                if len(cnt) == 4 and cv2.contourArea(cnt) > 750 and cv2.isContourConvex(cnt):
                     cnt = cnt.reshape(-1, 2)
                     max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
                     if max_cos < 0.1:
@@ -66,18 +76,17 @@ def find_cube(img):
     squares = find_squares(img)
     for i in squares:
         for j in i:
-            if sum(j) < sum(min) and j[0] > 100 and j[1] > 100:
+            if sum(j) < sum(min) and j[0] > 0 and j[1] > 0:
                 min = j[:]
-            elif sum(j) > sum(max) and j[0]<400 and j[1]<400:
+            elif sum(j) > sum(max) and j[0]<479 and j[1]<479:
                 max = j[:]
     # cv2.waitKey(0)
     if min[0]!=1000 and max[0]!=0:
         sizeHistory.append(int(min[0]*max[1]))
-        if len(sizeHistory) == 10:
+        if len(sizeHistory) == 3:
             del sizeHistory[0]
-        if sizeHistory[0] >= np.max(sizeHistory) -10000:
+        if sizeHistory[0] >= np.max(sizeHistory) -10000 and validate_sqaure(min,max):
             corners = [min[0],min[1],max[0],max[1]]
-    # cv2.drawContours( img, squares, -1, (0, 255, 0), 3 )
     if min[0] !=1000 and max[0] != 0:
         return corners
 
@@ -110,31 +119,33 @@ def calibrate_grid():
 
 def draw_grid(frame,corners = [],cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
     global size,xoff,yoff
-    if corners != []:
-        try:
-            xoff = corners[0]
-            yoff = corners[1]
-            size = max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3)
-        except:
-            pass
-    for x in range(3):
-        for y in range(3):
-            if cube[x*3+y] == "R":
-                color = [0,0,255]
-            elif cube[x*3+y] == "G":
-                color = [0,255,0]
-            elif cube[x*3+y] == "Y":
-                color = [0,255,255]
-            elif cube[x*3+y] == "O":
-                color = [0,128,255]
-            elif cube[x*3+y] == "W":
-                color = [255,255,255]
-            elif cube[x*3+y] == "B":
-                color = (255,0,0)
-            else:
-                color = [0,0,0]
-            if color:
-                cv2.rectangle(frame,(size*(x)+xoff+(thickness),size*(y)+yoff+(thickness)),(size*(x+1)+xoff-(thickness),size*(y+1)+yoff-(thickness)),color,thickness)
+    if corners != None and corners[1] != 479:
+        if corners[1] != 479 and max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3) > 10:
+            try:
+                xoff = corners[0]
+                yoff = corners[1]
+                size = max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3)
+            except:
+                pass
+    if size < 85:
+        for x in range(3):
+            for y in range(3):
+                if cube[x*3+y] == "R":
+                    color = [0,0,255]
+                elif cube[x*3+y] == "G":
+                    color = [0,255,0]
+                elif cube[x*3+y] == "Y":
+                    color = [0,255,255]
+                elif cube[x*3+y] == "O":
+                    color = [0,128,255]
+                elif cube[x*3+y] == "W":
+                    color = [255,255,255]
+                elif cube[x*3+y] == "B":
+                    color = (255,0,0)
+                else:
+                    color = [0,0,0]
+                if color:
+                    cv2.rectangle(frame,(size*(x)+xoff+(thickness),size*(y)+yoff+(thickness)),(size*(x+1)+xoff-(thickness),size*(y+1)+yoff-(thickness)),color,thickness)
 
 def calibrate():
     global yellow,blue,red,green,orange
