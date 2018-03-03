@@ -19,9 +19,9 @@ blue = 105
 orange = 10
 tolerance = 10
 sensitivity = 5
-sqaureTolerance = 0.3
+sqaureTolerance = 0.5
 
-historyTolerance = 30
+historyTolerance = 20
 history = 0
 historyCube = [0,0,0,0,0,0,0,0,0]
 index = "YBRGOW"
@@ -29,6 +29,7 @@ coloredCube = [0,0,0,0,0,0]
 COLORS = ["Yellow","Blue","Red","Green","Orange","White"]
 sizeHistory = []
 corners = [0,0,0,0]
+averageFaceLength = 2
 
 # setup
 calibrated = True
@@ -37,7 +38,7 @@ dynnamicTracking = True
 
 def validate_sqaure(min,max):
     try:
-        temp =  float(max[0] - min[0])/(max[1] - min[1])
+        temp =  float(abs(max[0] - min[0]))/abs(max[1] - min[1])
         if temp> 1 - sqaureTolerance and temp < 1 + sqaureTolerance:
             return True
         return False
@@ -51,7 +52,7 @@ def angle_cos(p0, p1, p2):
 def find_squares(img):
     squares = []
     for gray in cv2.split(img):
-        for thrs in xrange(0, 255, 26):
+        for thrs in xrange(0, 255, 52):
             if thrs == 0:
                 bin = cv2.Canny(gray, 0, 50, apertureSize=5)
                 bin = cv2.dilate(bin, None)
@@ -60,7 +61,7 @@ def find_squares(img):
             bin, contours, _hierarchy = cv2.findContours(bin, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
             for cnt in contours:
                 cnt_len = cv2.arcLength(cnt, True)
-                cnt = cv2.approxPolyDP(cnt, 0.03*cnt_len, True)
+                cnt = cv2.approxPolyDP(cnt, 0.10*cnt_len, True)
                 if len(cnt) == 4 and cv2.contourArea(cnt) > 750 and cv2.isContourConvex(cnt):
                     cnt = cnt.reshape(-1, 2)
                     max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
@@ -74,16 +75,19 @@ def find_cube(img):
     max = [0,0]
 
     squares = find_squares(img)
+    # cv2.drawContours( img, squares, -1, (0, 255, 0), 3 )
     for i in squares:
-        for j in i:
-            if sum(j) < sum(min) and j[0] > 0 and j[1] > 0:
-                min = j[:]
-            elif sum(j) > sum(max) and j[0]<479 and j[1]<479:
-                max = j[:]
+        if validate_sqaure(i[1],i[3]):   
+            for j in i:
+                if sum(j) < sum(min) and j[0] > 0 and j[1] > 0:
+                    min = j[:]
+                elif sum(j) > sum(max) and j[0]<479 and j[1]<479:
+                    max = j[:]
+
     # cv2.waitKey(0)
     if min[0]!=1000 and max[0]!=0:
         sizeHistory.append(int(min[0]*max[1]))
-        if len(sizeHistory) == 3:
+        if len(sizeHistory) == 2:
             del sizeHistory[0]
         if sizeHistory[0] >= np.max(sizeHistory) -10000 and validate_sqaure(min,max):
             corners = [min[0],min[1],max[0],max[1]]
@@ -122,12 +126,18 @@ def draw_grid(frame,corners = [],cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
     if corners != None and corners[1] != 479:
         if corners[1] != 479 and max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3) > 10:
             try:
-                xoff = corners[0]
-                yoff = corners[1]
-                size = max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3)
+                tempX = corners[0]
+                tempY = corners[1]
+                tempSize = max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3)
+                if abs(tempX-xoff)>1:
+                    xoff = corners[0]
+                if abs(tempY-yoff)>1:
+                    yoff = corners[1]
+                if abs(tempSize-size)>1:
+                    size = tempSize
             except:
                 pass
-    if size < 85:
+    if size < 85 and size>40:
         for x in range(3):
             for y in range(3):
                 if cube[x*3+y] == "R":
@@ -196,29 +206,32 @@ def lts(list,string):
     return True
 
 def get_color(frame):
-
     for x in range(3):
         for y in range(3):
             try:
-                cube[x*3+y] = frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]            
-                temp = np.uint8([[cube[x*3+y]]])
+                temp = np.uint8([[frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]]])
                 hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
                 if hsv[1]<white and (hsv[0]<50 or hsv[0]>140):
-                    cube[x*3+y] = "W" 
-                elif hsv[0]>red - tolerance and hsv[0] < red + tolerance:
-                    cube[x*3+y] = "R"    
+                    cube[x*3+y].append("W") 
+                elif hsv[0]>150:
+                    cube[x*3+y].append("R")
                 elif hsv[0]> yellow - tolerance and hsv[0] < yellow + tolerance:
-                    cube[x*3+y] = "Y"
+                    cube[x*3+y].append("Y")
                 elif hsv[0] > green - tolerance and hsv[0] < green + tolerance:
-                    cube[x*3+y] = "G"
+                    cube[x*3+y].append("G")
                 elif hsv[0]>blue - tolerance and hsv[0] < blue + tolerance:
-                       cube[x*3+y] = "B"
+                       cube[x*3+y].append("B")
                 elif hsv[0]>orange - tolerance and hsv[0] < orange + tolerance:
-                        cube[x*3+y] = "O"
+                    if hsv[2] > 130:
+                        cube[x*3+y].append("O")
+                    else:
+                        cube[x*3+y].append("R")
                 else:
-                    cube[x*3+y] = " "
+                    cube[x*3+y].append(" ")
             except:
-                cube[x*3+y] = " "
+                cube[x*3+y].append(" ")
+            if len(cube[x*3+y])==averageFaceLength:
+                del cube[x*3+y][0]
 
 def setup():
     global yellow,blue,red,green,orange
@@ -253,29 +266,31 @@ def setup():
         file.close()
 
 def saveFace(k):
-    global history,string,cube,face,historyCube
+    global history,string,averageCube,face,historyCube
     if (k == 32 or history == historyTolerance):
         if lts(historyCube,string):
-            if " " not in cube:
+            if " " not in averageCube:
                 for x in range(3):
                     for y in range(3):
-                        string+=cube[y*3+x].lower()
-                coloredCube[index.index(cube[4])] = cube
+                        string+=averageCube[y*3+x].lower()
+                print coloredCube
+                coloredCube[index.index(averageCube[4])] = averageCube[:]
+                print coloredCube
                 
-                print "Saved",COLORS[index.index(cube[4])],"face"
+                print "Saved",COLORS[index.index(averageCube[4])],"face"
                 history = 0
                 face+=1
             else:
-                print "Error could not dected postions", cube.index(" "), "color"
+                print "Error could not dected postions", averageCube.index(" "), "color"
                 
         else:
-            print "Already Scaned",COLORS[index.index(cube[4])],"face"
+            print "Already Scaned",COLORS[index.index(averageCube[4])],"face"
             history = 0
 
-    if historyCube == cube and " " not in cube:
+    if historyCube == averageCube and " " not in averageCube:
         history+=1
     else:
-        historyCube = cube[:]
+        historyCube = averageCube[:]
         history = 0
 
 def save():
@@ -292,16 +307,17 @@ def save():
     file = open("Colors.txt","w") 
     file.write(string) 
 
-
 setup()
-
+from collections import Counter
+averageCube = [[],[],[],[],[],[],[],[],[]]
+cube = [[],[],[],[],[],[],[],[],[]]
 while face < 6:
-    _, frame = cap.read()    
-    cube = [0,0,0,0,0,0,0,0,0]
-
+    _, frame = cap.read()
     k = cv2.waitKey(5) & 0xFF
     get_color(frame)
-    draw_grid(frame,find_cube(frame) if dynnamicTracking else [],cube)
+    for i in range(len(cube)):
+        averageCube[i] = Counter(cube[i]).most_common(1)[0][0]
+    draw_grid(frame,find_cube(frame) if dynnamicTracking else [],averageCube)
     saveFace(k)
     cv2.imshow('Rubik Cube Scanner',frame)
     if k == 27:
