@@ -2,8 +2,6 @@
 #include <iostream>
 #include <time.h>
 #include "Movement.h"
-#include "Utils.h"
-#include "Validation.h"
 #include "cGame.h"
 #include <string>
 #include <fstream>

@@ -1,7 +1,5 @@
 #include "stdafx.h"
 #include "Movement.h"
-#include "Utils.h"
-#include "Validation.h"
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
@@ -30,6 +28,13 @@ char * Tperm = { "ruRURfrrURUruRF"};
 char * Yperm = {"frURUruRFruRURfrF"};
 int sleep = 0;
 
+bool solved(int cube[][9], int stage) {
+	for (int i = 1; i < 54; i++)
+		if (cube[i / 9][i % 9] != i + 1 && (i % 9) % 2 == stage)
+			return false;
+	return true;
+}
+
 void front_face(int cube[][9],int face, int direction) {
 	int temp[9];
 	for (int i = 0; i < 9; i++) {
@@ -53,7 +58,10 @@ void move(int cube[][9], int face, int direction) {
 	Sleep(sleep);
 }
 void text_to_move(int cube[][9], char c) {
-	int found = find(moves, 12, c)%6;
+	int found;
+	for (int i = 0; i < 12; i++)
+		if (c == moves[i])
+			found = i%6;
 	if (found != -1) {
 		if ((int)c>96)
 			move(cube, found, 9);
@@ -113,13 +121,13 @@ void swapCorners(int cube[][9],int set) {
 	reverse_string_to_move(cube, c);
 }
 void solve(int cube[][9]) {
-	while (!solvedEdges(cube)){
+	while (!solved(cube,1)){
 		if (cube[0][5] != 29 && cube[0][5] != 6)
 			swapEdges(cube,-1);
 		else 
 			out_of_place(cube);
 	} 
-	while (!solvedCorners(cube)) {
+	while (!solved(cube,0)) {
 		if (cube[0][0] == 1) 
 			out_of_place_corners(cube);
 		else if (cube[0][0] == 10 && cube[0][8] == 21) 
