@@ -136,5 +136,7 @@ void solve(int cube[][9]) {
 			string_to_move(cube, "URfrBRFrburBrffRbrffrr");
 		else if (cube[0][0] != 10 && cube[0][0] != 39) 
 			swapCorners(cube,-1);
+		else
+			out_of_place_corners(cube);
 	}
 }
