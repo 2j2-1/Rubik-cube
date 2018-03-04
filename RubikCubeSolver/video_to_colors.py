@@ -19,7 +19,6 @@ blue = 105
 orange = 10
 tolerance = 10
 sensitivity = 5
-sqaureTolerance = 0.5
 
 historyTolerance = 20
 history = 0
@@ -29,14 +28,14 @@ coloredCube = [0,0,0,0,0,0]
 COLORS = ["Yellow","Blue","Red","Green","Orange","White"]
 sizeHistory = []
 corners = [0,0,0,0]
-averageFaceLength = 2
+averageFaceLength = 10
 
 # setup
 calibrated = True
 gridCalibrated = True
 dynnamicTracking = True
 
-def validate_sqaure(min,max):
+def validate_sqaure(min,max,squareTolerance=0.5):
     try:
         temp =  float(abs(max[0] - min[0]))/abs(max[1] - min[1])
         if temp> 1 - sqaureTolerance and temp < 1 + sqaureTolerance:
@@ -175,7 +174,6 @@ def calibrate():
                             coloredCube.append(hsv[0])
 
                 temp = sum(coloredCube) / len(coloredCube)
-                # print coloredCube
                 draw_grid(frame,find_cube(frame))
                 cv2.imshow("calibrate",frame)
                 k = cv2.waitKey(5) & 0xFF
@@ -273,9 +271,7 @@ def saveFace(k):
                 for x in range(3):
                     for y in range(3):
                         string+=averageCube[y*3+x].lower()
-                print coloredCube
                 coloredCube[index.index(averageCube[4])] = averageCube[:]
-                print coloredCube
                 
                 print "Saved",COLORS[index.index(averageCube[4])],"face"
                 history = 0
@@ -311,13 +307,17 @@ setup()
 from collections import Counter
 averageCube = [[],[],[],[],[],[],[],[],[]]
 cube = [[],[],[],[],[],[],[],[],[]]
+
+_, frame = cap.read()
+
 while face < 6:
     _, frame = cap.read()
+    cubePostion = find_cube(frame)
     k = cv2.waitKey(5) & 0xFF
     get_color(frame)
     for i in range(len(cube)):
         averageCube[i] = Counter(cube[i]).most_common(1)[0][0]
-    draw_grid(frame,find_cube(frame) if dynnamicTracking else [],averageCube)
+    draw_grid(frame,cubePostion if dynnamicTracking else [],averageCube)
     saveFace(k)
     cv2.imshow('Rubik Cube Scanner',frame)
     if k == 27:

@@ -62,10 +62,8 @@ void text_to_move(int cube[][9], char c) {
 	}
 }
 void scramble(int cube[][9], int amount) {
-	int turnFace;
 	for (int i = 0; i < amount; i++) {
-		turnFace = rand() % 12;
-		text_to_move(cube, moves[turnFace]);
+		text_to_move(cube, moves[rand() % 12]);
 	}
 }
 void swapEdges(int cube[][9],int set) {
@@ -116,28 +114,19 @@ void swapCorners(int cube[][9],int set) {
 }
 void solve(int cube[][9]) {
 	while (!solvedEdges(cube)){
-		while (cube[0][5] != 6) {
-			if (cube[0][5] != 29) 
-				swapEdges(cube,-1);
-			else 
-				out_of_place(cube);
-		} 
-		out_of_place(cube);
+		if (cube[0][5] != 29 && cube[0][5] != 6)
+			swapEdges(cube,-1);
+		else 
+			out_of_place(cube);
 	} 
 	while (!solvedCorners(cube)) {
-		while (cube[0][0] != 1) {
-			if (cube[0][0] == 10 && cube[0][8] == 21) 
-				string_to_move(cube, "uRfrBRFrbuRfRbbrFRbbrruu");
-			else if ((cube[0][0] == 39 && cube[0][8] == 28)) 
-				string_to_move(cube, "URfrBRFrburBrffRbrffrr");
-			else if (cube[0][0] != 10 && cube[0][0] != 39) 
-				swapCorners(cube,-1);
-			else
-				out_of_place_corners(cube);
-		} 
-		out_of_place_corners(cube);
-	} 
+		if (cube[0][0] == 1) 
+			out_of_place_corners(cube);
+		else if (cube[0][0] == 10 && cube[0][8] == 21) 
+			string_to_move(cube, "uRfrBRFrbuRfRbbrFRbbrruu");
+		else if ((cube[0][0] == 39 && cube[0][8] == 28)) 
+			string_to_move(cube, "URfrBRFrburBrffRbrffrr");
+		else if (cube[0][0] != 10 && cube[0][0] != 39) 
+			swapCorners(cube,-1);
+	}
 }
-//void solve(int cube[][9]) {
-//
-//}
