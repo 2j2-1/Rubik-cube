@@ -96,12 +96,11 @@ int main() {
 	std::cin >> choice;
 	if (choice == 1)
 		system("python video_to_colors.py");
-	game.setup();
-	game.blank_screen();
-	if (choice != 2) {
+	if (choice == 2)
+		scramble(cube, 40);
+	else {
 		std::string line;
 		std::ifstream myfile("Colors.txt");
-		char * faces = new char[55];
 		myfile >> line;
 		myfile.close();
 		colors_to_cube(line);
@@ -109,8 +108,10 @@ int main() {
 	
 	srand(1);
 	amountOfMoves = 0;
-	if (choice == 2)
-		scramble(cube, 40);
+	
+
+	game.setup();
+	game.blank_screen();
 	print_cube();
 	Sleep(5000);
 	solve(cube);
