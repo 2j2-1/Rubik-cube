@@ -34,11 +34,12 @@ averageFaceLength = 10
 calibrated = True
 gridCalibrated = True
 dynnamicTracking = True
+drawCubes = True
 
 def validate_sqaure(min,max,squareTolerance=0.5):
     try:
         temp =  float(abs(max[0] - min[0]))/abs(max[1] - min[1])
-        if temp> 1 - sqaureTolerance and temp < 1 + sqaureTolerance:
+        if temp> 1 - squareTolerance and temp < 1 + squareTolerance:
             return True
         return False
     except:
@@ -64,6 +65,7 @@ def find_squares(img):
                 if len(cnt) == 4 and cv2.contourArea(cnt) > 750 and cv2.isContourConvex(cnt):
                     cnt = cnt.reshape(-1, 2)
                     max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
+                    
                     if max_cos < 0.1:
                         squares.append(cnt)
     return squares
@@ -74,7 +76,12 @@ def find_cube(img):
     max = [0,0]
 
     squares = find_squares(img)
-    # cv2.drawContours( img, squares, -1, (0, 255, 0), 3 )
+    
+    squares = [squares[i] for i in range(len(squares)) if (squares[i][0][1] != 0 and squares[i][0][0] > 185) ]
+    if drawCubes:
+        cv2.drawContours( img, squares, -1, (0, 255, 0), 3 )
+
+
     for i in squares:
         if validate_sqaure(i[1],i[3]):   
             for j in i:
@@ -86,7 +93,7 @@ def find_cube(img):
     # cv2.waitKey(0)
     if min[0]!=1000 and max[0]!=0:
         sizeHistory.append(int(min[0]*max[1]))
-        if len(sizeHistory) == 2:
+        if len(sizeHistory) == 10:
             del sizeHistory[0]
         if sizeHistory[0] >= np.max(sizeHistory) -10000 and validate_sqaure(min,max):
             corners = [min[0],min[1],max[0],max[1]]
@@ -266,22 +273,17 @@ def setup():
 def saveFace(k):
     global history,string,averageCube,face,historyCube
     if (k == 32 or history == historyTolerance):
-        if lts(historyCube,string):
-            if " " not in averageCube:
-                for x in range(3):
-                    for y in range(3):
-                        string+=averageCube[y*3+x].lower()
-                coloredCube[index.index(averageCube[4])] = averageCube[:]
-                
-                print "Saved",COLORS[index.index(averageCube[4])],"face"
-                history = 0
-                face+=1
-            else:
-                print "Error could not dected postions", averageCube.index(" "), "color"
-                
-        else:
-            print "Already Scaned",COLORS[index.index(averageCube[4])],"face"
+        if " " not in averageCube:
+            print ("Resaving "+COLORS[index.index(averageCube[4])]+" face") if coloredCube[index.index(averageCube[4])] != 0 else ("Saved "+COLORS[index.index(averageCube[4])]+" face")
+            for x in range(3):
+                for y in range(3):
+                    string+=averageCube[y*3+x].lower()
+            coloredCube[index.index(averageCube[4])] = averageCube[:]
+            
             history = 0
+            face+=1
+        else:
+            print "Error could not dected postions", averageCube.index(" "), "color"
 
     if historyCube == averageCube and " " not in averageCube:
         history+=1
@@ -291,6 +293,7 @@ def saveFace(k):
 
 def save():
     string = ""
+    print coloredCube
     try:
         for i in range(6):
             for x in range(3):
@@ -311,16 +314,21 @@ cube = [[],[],[],[],[],[],[],[],[]]
 _, frame = cap.read()
 
 while face < 6:
+
     _, frame = cap.read()
     cubePostion = find_cube(frame)
-    k = cv2.waitKey(5) & 0xFF
     get_color(frame)
+
     for i in range(len(cube)):
         averageCube[i] = Counter(cube[i]).most_common(1)[0][0]
+
     draw_grid(frame,cubePostion if dynnamicTracking else [],averageCube)
+    
+    k = cv2.waitKey(5) & 0xFF
     saveFace(k)
-    cv2.imshow('Rubik Cube Scanner',frame)
     if k == 27:
         break
+
+    cv2.imshow('Rubik Cube Scanner',frame)
 save()
 cv2.destroyAllWindows()
