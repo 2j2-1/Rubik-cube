@@ -12,11 +12,13 @@ WORD faceColors[] = { 238,153 ,204,170,187,255 };
 
 void cGame::draw_pixel(int x, int y, char c) {
 	if (y >= 0 && y <= screenHeight && x >= 0 && x < screenWidth) {
+		//Translate from 2d coordinates to 1d
 		screen[y*screenWidth + x] = c;
 	}
 }
 
 void cGame::blank_screen() {
+	//Fill screen with blank pixels
 	for (int y = 0; y < this->screenHeight; y++) {
 		for (int x = 0; x < screenWidth; x++) {
 			draw_pixel(x, y, 32);
@@ -24,23 +26,12 @@ void cGame::blank_screen() {
 	}
 }
 
-int cGame::random(int lower, int upper) {
-	return rand() % (upper - lower) + lower;
-}
-
-void cGame::rect(float * rectangle, char c) {
-	for (int _x = rectangle[0]; _x < rectangle[0] + rectangle[2]; _x++) {
-		for (int _y = rectangle[1]; _y < rectangle[1] + rectangle[3]; _y++) {
-			draw_pixel(_x, _y, c);
-		}
-	}
-}
-
 void cGame::draw(int cubeSize) {
+	//draws each char in the array to the screen
 	DWORD written;
-	//screen[screenWidth * screenHeight - 1] = '\0';
 	for (int i = 0; i < screenHeight*screenWidth-1; i++)
 	{
+		//If one of the predefined symbols are to be drawn repalce it instead with a row of pixels of set length and color
 		if (screen[i] > 32 && screen[i] < 39) {
 			WORD attribute = faceColors[(screen[i] + 3) % 6];
 			FillConsoleOutputAttribute(hConsole, attribute, cubeSize, {i % (short)screenWidth, (short)(i / screenWidth)}, &written);
@@ -55,25 +46,8 @@ void cGame::setup() {
 	srand(time(NULL));
 }
 
-void cGame::line(float* points, char c) {
-	if (points[0] == points[2]) {
-		for (int i = points[1]; i < points[3]; i++) { draw_pixel(points[0], i, c); }
-	}
-	else if (points[1] == points[3]) {
-		for (int i = points[0]; i < points[2]; i++) { draw_pixel(i, points[1], c); }
-	}
-
-}
-
-bool cGame::collide(float* rectA, float* rectB) {
-	if (rectA[0] < rectB[0] + rectB[2] && rectA[0] + rectA[2] > rectB[0] &&
-		rectA[1] < rectB[1] + rectB[3] && rectA[1] + rectA[3] > rectB[1]) {
-		return true;
-	}
-	return false;
-}
-
 void cGame::print(std::string s, int x, int y) {
+	//Draws a string to the screen
 	for (int i = 0; i < s.length(); i++)
 	{
 		draw_pixel(x + i, y, s[i]);
