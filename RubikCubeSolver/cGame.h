@@ -15,14 +15,9 @@ public:
 
 	void draw_pixel(int, int, char);
 	void blank_screen();
-	void rect(float *, char);
 	void draw(int);
 	void setup();
-	void line(float *, char);
 	void print(std::string, int, int);
-	int random(int, int);
-
-	bool collide(float *, float *);
 
 	char *screen = new char[screenWidth*screenHeight];
 	HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
