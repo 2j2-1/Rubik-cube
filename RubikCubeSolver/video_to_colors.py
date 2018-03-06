@@ -226,6 +226,7 @@ def get_color(frame):
                     cube[x*3+y].append("G")
                 elif hsv[0]>blue - tolerance and hsv[0] < blue + tolerance:
                        cube[x*3+y].append("B")
+                       print hsv
                 elif hsv[0]>orange - tolerance and hsv[0] < orange + tolerance:
                     if hsv[2] > 130:
                         cube[x*3+y].append("O")
@@ -313,7 +314,7 @@ cube = [[],[],[],[],[],[],[],[],[]]
 
 _, frame = cap.read()
 
-while face < 6:
+while 0 in coloredCube:
 
     _, frame = cap.read()
     cubePostion = find_cube(frame)
