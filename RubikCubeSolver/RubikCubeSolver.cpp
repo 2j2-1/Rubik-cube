@@ -26,8 +26,7 @@ int locations[][6] = { { 3,0 },{ 0,3 },{ 3,3 },{ 6,3 },{ 9,3 },{ 3,6 } };
 char symbols[] = { '!','"','#','$','%','&' };
 int amountOfMoves = 0;
 
-
-int colors_to_cube(std::string cubeColors) {
+void colors_to_cube(std::string cubeColors) {
 	// this function is used to covert a cube of colors to a two diensional array of a vaild cube
 	// the format to be given to this function is "yyyyyyyyybbbbbbbbbrrrrrrrrrgggggggggooooooooowwwwwwwww" this would produce a solved cube
 	
@@ -101,8 +100,6 @@ int colors_to_cube(std::string cubeColors) {
 		else
 			cube[i / 9][i % 9] = tripleRealtions[colors[pairs[i][0] - 1]][colors[pairs[i][1] - 1]];
 	}
-
-	return 0;
 }
 
 // This displayd the stats at the upper right of the screen
@@ -135,14 +132,15 @@ void print_cube() {
 }
 
 int main() {
-	//Option 1 allow for a python script to be ran to input the cubes colors
-	//Option 2 scrambles a solved cube with a standard 40 move scramble 
-	//Option 3 loads a previously generated colored cube
+	/*
+	Option 1 allow for a python script to be ran to input the cubes colors
+	Option 2 scrambles a solved cube with a standard 40 move scramble 
+	Option 3 loads a previously generated colored cube
+	*/
 	int choice = 0;
 	std::cout << "1.Video input\n2.Scramble\n3.Exsiting file" << std::endl;
 	std::cin >> choice;
 	std::cin.ignore();
-	//choice = 3;
 	if (choice == 1)
 		system("python video_to_colors.py");
 	if (choice == 2) {
