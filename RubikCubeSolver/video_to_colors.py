@@ -28,7 +28,7 @@ coloredCube = [0,0,0,0,0,0]
 COLORS = ["Yellow","Blue","Red","Green","Orange","White"]
 sizeHistory = []
 corners = [0,0,0,0]
-averageFaceLength = 10
+averageFaceLength = 2
 
 # setup
 calibrated = True
@@ -37,6 +37,7 @@ dynnamicTracking = True
 drawCubes = True
 
 def validate_sqaure(min,max,squareTolerance=0.5):
+    # validate squares takes r=two corners of the square and detrimes if the length of the edges are the same length within the tolerance
     try:
         temp =  float(abs(max[0] - min[0]))/abs(max[1] - min[1])
         if temp> 1 - squareTolerance and temp < 1 + squareTolerance:
@@ -46,6 +47,7 @@ def validate_sqaure(min,max,squareTolerance=0.5):
         return False
 
 def angle_cos(p0, p1, p2):
+    # returns the cos angle of coordinate points
     d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
     return abs( np.dot(d1, d2) / np.sqrt( np.dot(d1, d1)*np.dot(d2, d2) ) )
 
@@ -62,15 +64,20 @@ def find_squares(img):
             for cnt in contours:
                 cnt_len = cv2.arcLength(cnt, True)
                 cnt = cv2.approxPolyDP(cnt, 0.10*cnt_len, True)
-                if len(cnt) == 4 and cv2.contourArea(cnt) > 750 and cv2.isContourConvex(cnt):
+
+                (x, y, w, h) = cv2.boundingRect(cnt)
+                ar = w / float(h)
+
+                if len(cnt) == 4 and cv2.contourArea(cnt) > 500 and (ar >= 0.98 and ar <= 1.02):
                     cnt = cnt.reshape(-1, 2)
                     max_cos = np.max([angle_cos( cnt[i], cnt[(i+1) % 4], cnt[(i+2) % 4] ) for i in xrange(4)])
                     
-                    if max_cos < 0.1:
-                        squares.append(cnt)
+                    # if max_cos < 0.1:
+                    squares.append(cnt)
     return squares
 
 def find_cube(img):
+    # Takes all the square returned for find_sqaure and find the cube by find the smallest viable edge and largest viable
     global sizeHistory,corners
     min = [1000,1000]
     max = [0,0]
@@ -91,6 +98,7 @@ def find_cube(img):
                     max = j[:]
 
     # cv2.waitKey(0)
+    # takes average each frame to reduce amount of incorrect movement
     if min[0]!=1000 and max[0]!=0:
         sizeHistory.append(int(min[0]*max[1]))
         if len(sizeHistory) == 10:
@@ -101,6 +109,8 @@ def find_cube(img):
         return corners
 
 def calibrate_grid():
+
+    # Manual calibartion if dynamic tracking is not needed
     global xoff,yoff,size
 
     while 1:
@@ -128,6 +138,7 @@ def calibrate_grid():
     file.close 
 
 def draw_grid(frame,corners = [],cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
+    # draws grid to macth size of find cube and sets colors within grid if correct color has been found
     global size,xoff,yoff
     if corners != None and corners[1] != 479:
         if corners[1] != 479 and max((corners[2]-corners[0])/3,(corners[3]-corners[1])/3) > 10:
@@ -164,6 +175,7 @@ def draw_grid(frame,corners = [],cube=[0,0,0,0,0,0,0,0,0],thickness = 10):
                     cv2.rectangle(frame,(size*(x)+xoff+(thickness),size*(y)+yoff+(thickness)),(size*(x+1)+xoff-(thickness),size*(y+1)+yoff-(thickness)),color,thickness)
 
 def calibrate():
+    # get colors of all pieces on one side and average these to get colors in different lighting 
     global yellow,blue,red,green,orange
     calibratedColors = ["Yellow","Blue","Red","Green","Orange"]
     for i in range(5):
@@ -174,7 +186,8 @@ def calibrate():
                 _, frame = cap.read()   
                 coloredCube = []
                 for x in range(3):
-                    for y in range(3):       
+                    for y in range(3):     
+                    # hsv are easier to dected color with so this is the format i convert bgr to 
                         temp = np.uint8([[frame[(size/2)+size*y+yoff,(size/2)+size*x+xoff]]])
                         hsv = cv2.cvtColor(temp,cv2.COLOR_BGR2HSV)[0][0]
                         if hsv[0] != 0:
@@ -226,7 +239,6 @@ def get_color(frame):
                     cube[x*3+y].append("G")
                 elif hsv[0]>blue - tolerance and hsv[0] < blue + tolerance:
                        cube[x*3+y].append("B")
-                       print hsv
                 elif hsv[0]>orange - tolerance and hsv[0] < orange + tolerance:
                     if hsv[2] > 130:
                         cube[x*3+y].append("O")
